@@ -202,6 +202,38 @@ export function vowelColumns(opts: { long: boolean }): VowelSign[] {
   return basicVowelSigns.filter((s) => (isLongSign(s) ? opts.long : true));
 }
 
+/**
+ * A composition-chart column: one short vowel slot and its long (dīrgha)
+ * partner. The chart never widens for long vowels; instead each column carries
+ * both, and the long member is shown as an extra row when long is toggled on.
+ */
+export interface VowelSlot {
+  shortSign: VowelSign;
+  longSign?: VowelSign;
+  shortVowel?: Vowel;
+  longVowel?: Vowel;
+}
+
+/** The 6 short vowel slots (a/æ/i/u/e/o), each paired with its long partner
+ *  sign and the matching independent vowels (for the header rows). */
+export function vowelSlots(): VowelSlot[] {
+  const signByRom = new Map(vowelSigns.map((s) => [s.rom, s]));
+  const vowelByRom = new Map(independentVowels.map((v) => [v.rom, v]));
+  return basicVowelSigns
+    .filter((s) => !isLongSign(s))
+    .map((shortSign) => {
+      const shortVowel = vowelByRom.get(shortSign.rom);
+      // the short independent vowel's `pair` is its long partner's rom.
+      const longRom = shortVowel?.pair;
+      return {
+        shortSign,
+        longSign: longRom ? signByRom.get(longRom) : undefined,
+        shortVowel,
+        longVowel: longRom ? vowelByRom.get(longRom) : undefined,
+      };
+    });
+}
+
 /** Reading label for a character in a given field. */
 export function reading(c: SinhalaChar, field: ReadingField): string {
   return c[field];

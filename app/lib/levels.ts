@@ -104,59 +104,183 @@ export function cumulativeUpTo(level: LevelId): string[] {
   return out;
 }
 
-// --- consonant frequency bands for the composition chart ---
+// --- consonant bands for the composition chart (Japanese kana grouping) ---
 
-export type ConsonantBandId = "basic" | "rest" | "misra";
+/**
+ * Four independently-toggleable categories, distinguished by color in the
+ * chart (no separator rows). Each consonant belongs to exactly one:
+ *  seion  清音          — plain か/た/さ/な/は/ま/ら type sounds
+ *  dakuon 濁音・半濁音    — voiced が/だ/ば + half-voiced ぱ
+ *  yoon   拗音          — palatalized ちゃ/じゃ/しゃ/にゃ (and aspirated kin)
+ *  other  鼻濁音・その他  — prenasalized んが/んだ/んば + remaining (息付き, ふぁ…)
+ */
+export type ConsonantBandId = "seion" | "dakuon" | "yoon" | "other";
 
 export interface ConsonantBand {
   id: ConsonantBandId;
   label: string;
-  /** consonants newly introduced at this band (not in earlier bands). */
   consonants: Consonant[];
 }
 
-const lv1ConsonantOrder = new Map(lv1Ids.map((id, i) => [id, i]));
+const consonantByRom = new Map(consonants.map((c) => [c.rom, c]));
+const con = (rom: string): Consonant => {
+  const c = consonantByRom.get(rom);
+  if (!c) throw new Error(`unknown consonant rom: ${rom}`);
+  return c;
+};
+
+/** The category each consonant belongs to. */
+const BAND_BY_ROM: Record<string, ConsonantBandId> = {
+  ka: "seion",
+  ṭa: "seion",
+  ta: "seion",
+  sa: "seion",
+  na: "seion",
+  ṇa: "seion",
+  ha: "seion",
+  ma: "seion",
+  ya: "seion",
+  ra: "seion",
+  la: "seion",
+  ḷa: "seion",
+  va: "seion",
+  ga: "dakuon",
+  ḍa: "dakuon",
+  da: "dakuon",
+  ba: "dakuon",
+  pa: "dakuon",
+  ca: "yoon",
+  cha: "yoon",
+  ja: "yoon",
+  jha: "yoon",
+  ña: "yoon",
+  ⁿja: "yoon",
+  śa: "yoon",
+  ṣa: "yoon",
+  ⁿga: "other",
+  ṅa: "other",
+  ⁿḍa: "other",
+  ⁿda: "other",
+  ᵐba: "other",
+  fa: "other",
+  kha: "other",
+  gha: "other",
+  ṭha: "other",
+  ḍha: "other",
+  tha: "other",
+  dha: "other",
+  pha: "other",
+  bha: "other",
+};
+
+const bandOf = (rom: string): ConsonantBandId => {
+  const b = BAND_BY_ROM[rom];
+  if (!b) throw new Error(`no band for consonant rom: ${rom}`);
+  return b;
+};
 
 /**
- * Consonants grouped into cumulative frequency bands:
- *  basic = Lv1 high-frequency pure consonants (in learning order)
- *  rest  = remaining pure consonants (Lv4)
- *  misra = miśra characters (Lv5 consonants)
+ * Canonical chart row order: the articulation families velar→labial, then
+ * sibilant / glottal / semivowel-liquid. Within each family the related kin
+ * (voiced, palatalized, prenasalized, aspirated) sit right after their plain
+ * anchor, so toggling a band on slots its rows into place. Covers all 40
+ * consonants exactly once.
  */
-export const CONSONANT_BANDS: ConsonantBand[] = [
-  {
-    id: "basic",
-    label: "基本子音",
-    consonants: consonants
-      .filter((c) => lv1ConsonantOrder.has(c.id))
-      .sort(
-        (a, b) =>
-          (lv1ConsonantOrder.get(a.id) ?? 0) -
-          (lv1ConsonantOrder.get(b.id) ?? 0),
-      ),
-  },
-  {
-    id: "rest",
-    label: "残りの純粋子音",
-    consonants: consonants.filter(
-      (c) => !c.misra && !lv1ConsonantOrder.has(c.id),
-    ),
-  },
-  {
-    id: "misra",
-    label: "混成字母 (miśra)",
-    consonants: consonants.filter((c) => c.misra),
-  },
+const CHART_ROW_ROMS = [
+  // velar か
+  "ka",
+  "ga",
+  "ⁿga",
+  "ṅa",
+  "kha",
+  "gha",
+  // palatal ちゃ (all 拗音)
+  "ca",
+  "ja",
+  "ⁿja",
+  "ña",
+  "cha",
+  "jha",
+  // retroflex た(そり舌)
+  "ṭa",
+  "ḍa",
+  "ⁿḍa",
+  "ṇa",
+  "ṭha",
+  "ḍha",
+  // dental た
+  "ta",
+  "da",
+  "ⁿda",
+  "na",
+  "tha",
+  "dha",
+  // labial ま/ぱ/ば
+  "ma",
+  "ba",
+  "pa",
+  "ᵐba",
+  "bha",
+  "pha",
+  "fa",
+  // sibilant さ/しゃ
+  "sa",
+  "śa",
+  "ṣa",
+  // glottal は
+  "ha",
+  // semivowel / liquid や・ら・わ
+  "ya",
+  "ra",
+  "la",
+  "ḷa",
+  "va",
 ];
 
-/** Bands from the first up to and including the given band (cumulative). */
-export function bandsUpTo(band: ConsonantBandId): ConsonantBand[] {
-  const out: ConsonantBand[] = [];
-  for (const b of CONSONANT_BANDS) {
-    out.push(b);
-    if (b.id === band) break;
-  }
-  return out;
+/** Display label for each band. */
+export const BAND_LABELS: Record<ConsonantBandId, string> = {
+  seion: "清音",
+  dakuon: "濁音・半濁音",
+  yoon: "拗音",
+  other: "鼻濁音・その他",
+};
+
+export const CONSONANT_BANDS: ConsonantBand[] = (
+  ["seion", "dakuon", "yoon", "other"] as ConsonantBandId[]
+).map((id) => ({
+  id,
+  label: BAND_LABELS[id],
+  consonants: CHART_ROW_ROMS.filter((rom) => bandOf(rom) === id).map(con),
+}));
+
+/** Every consonant id in chart order — used by the lesson course. */
+export function allConsonantIdsInOrder(): string[] {
+  return CHART_ROW_ROMS.map((rom) => con(rom).id);
+}
+
+// --- interleaved chart-row model for the composition table ---
+
+/** Which bands the composition chart currently shows; each toggled
+ *  independently. The chart row order is fixed regardless of which are on. */
+export interface ChartBands {
+  seion: boolean;
+  dakuon: boolean;
+  yoon: boolean;
+  other: boolean;
+}
+
+/** A row in the composition chart, tagged with its band for coloring. */
+export interface ChartRow {
+  band: ConsonantBandId;
+  consonant: Consonant;
+}
+
+/** The ordered chart rows, filtered to the bands currently toggled on. */
+export function chartRows(bands: ChartBands): ChartRow[] {
+  return CHART_ROW_ROMS.map((rom) => ({
+    band: bandOf(rom),
+    consonant: con(rom),
+  })).filter((row) => bands[row.band]);
 }
 
 /** Resolve a list of ids to characters, dropping any unknown ids. */
