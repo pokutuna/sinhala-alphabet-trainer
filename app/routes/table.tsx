@@ -85,7 +85,7 @@ const VOWEL_CATEGORY_STYLE: Record<
 };
 
 // --- row (consonant) band toggle: option <-> row-header color ---
-// Four independently-toggled consonant categories. Each has a toggle-button
+// Six independently-toggled consonant categories. Each has a toggle-button
 // color and a matching faint row tint so the chart distinguishes categories by
 // color alone (no separator rows).
 const BAND_OPTIONS: {
@@ -113,10 +113,22 @@ const BAND_OPTIONS: {
     header: "bg-amber-50 dark:bg-amber-900/30",
   },
   {
-    id: "other",
-    label: "鼻濁音・その他",
+    id: "nasal",
+    label: "鼻濁音",
     button: "bg-rose-600 text-white",
     header: "bg-rose-50 dark:bg-rose-900/30",
+  },
+  {
+    id: "aspirated",
+    label: "息付き",
+    button: "bg-sky-600 text-white",
+    header: "bg-sky-50 dark:bg-sky-900/30",
+  },
+  {
+    id: "other",
+    label: "外来音",
+    button: "bg-slate-600 text-white",
+    header: "bg-slate-100 dark:bg-slate-800/50",
   },
 ];
 
@@ -141,6 +153,8 @@ export default function TablePage() {
     seion: bandSet.has("seion"),
     dakuon: bandSet.has("dakuon"),
     yoon: bandSet.has("yoon"),
+    nasal: bandSet.has("nasal"),
+    aspirated: bandSet.has("aspirated"),
     other: bandSet.has("other"),
   };
   // matrix base vowel: each cell shows the consonant + this vowel sign (default
@@ -196,7 +210,16 @@ export default function TablePage() {
     if (nextSet.has(id)) nextSet.delete(id);
     else nextSet.add(id);
     const next = new URLSearchParams(params);
-    const value = (["seion", "dakuon", "yoon", "other"] as ConsonantBandId[])
+    const value = (
+      [
+        "seion",
+        "dakuon",
+        "yoon",
+        "nasal",
+        "aspirated",
+        "other",
+      ] as ConsonantBandId[]
+    )
       .filter((b) => nextSet.has(b))
       .join(",");
     if (value === "seion" || value === "") next.delete("band");

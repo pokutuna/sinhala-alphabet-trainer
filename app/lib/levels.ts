@@ -107,14 +107,22 @@ export function cumulativeUpTo(level: LevelId): string[] {
 // --- consonant bands for the composition chart (Japanese kana grouping) ---
 
 /**
- * Four independently-toggleable categories, distinguished by color in the
+ * Six independently-toggleable categories, distinguished by color in the
  * chart (no separator rows). Each consonant belongs to exactly one:
- *  seion  清音          — plain か/た/さ/な/は/ま/ら type sounds
- *  dakuon 濁音・半濁音    — voiced が/だ/ば + half-voiced ぱ
- *  yoon   拗音          — palatalized ちゃ/じゃ/しゃ/にゃ (and aspirated kin)
- *  other  鼻濁音・その他  — prenasalized んが/んだ/んば + remaining (息付き, ふぁ…)
+ *  seion     清音          — plain か/さ/た/な/ま/や/ら/わ type sounds
+ *  dakuon    濁音・半濁音    — voiced が/だ/ば + half-voiced ぱ
+ *  yoon      拗音          — palatalized ちゃ/じゃ/しゃ
+ *  nasal     鼻濁音         — prenasalized んが/んじゃ/んだ/んば + ṅa
+ *  aspirated 息付き         — aspirated か(息)/た(息)… (息付き, Sanskrit)
+ *  other     外来音         — borrowed sounds (ふぁ)
  */
-export type ConsonantBandId = "seion" | "dakuon" | "yoon" | "other";
+export type ConsonantBandId =
+  | "seion"
+  | "dakuon"
+  | "yoon"
+  | "nasal"
+  | "aspirated"
+  | "other";
 
 export interface ConsonantBand {
   id: ConsonantBandId;
@@ -131,46 +139,52 @@ const con = (rom: string): Consonant => {
 
 /** The category each consonant belongs to. */
 const BAND_BY_ROM: Record<string, ConsonantBandId> = {
+  // 清音: plain voiceless stops, the base nasals (な/ま行), base fricatives, semivowels/liquids
   ka: "seion",
   ṭa: "seion",
   ta: "seion",
-  sa: "seion",
   na: "seion",
+  ña: "seion",
   ṇa: "seion",
-  ha: "seion",
   ma: "seion",
+  sa: "seion",
+  ha: "seion",
   ya: "seion",
   ra: "seion",
   la: "seion",
   ḷa: "seion",
   va: "seion",
+  // 濁音・半濁音: voiced stops + half-voiced ぱ
   ga: "dakuon",
   ḍa: "dakuon",
   da: "dakuon",
   ba: "dakuon",
   pa: "dakuon",
+  // 拗音: palatal ちゃ/じゃ + sibilant しゃ
   ca: "yoon",
-  cha: "yoon",
   ja: "yoon",
-  jha: "yoon",
-  ña: "yoon",
-  ⁿja: "yoon",
   śa: "yoon",
   ṣa: "yoon",
-  ⁿga: "other",
-  ṅa: "other",
-  ⁿḍa: "other",
-  ⁿda: "other",
-  ᵐba: "other",
+  // 鼻濁音: prenasalized + ṅa
+  ṅa: "nasal",
+  ⁿga: "nasal",
+  ⁿja: "nasal",
+  ⁿḍa: "nasal",
+  ⁿda: "nasal",
+  ᵐba: "nasal",
+  // 息付き: aspirated (voiceless/voiced aspirated)
+  kha: "aspirated",
+  gha: "aspirated",
+  cha: "aspirated",
+  jha: "aspirated",
+  ṭha: "aspirated",
+  ḍha: "aspirated",
+  tha: "aspirated",
+  dha: "aspirated",
+  pha: "aspirated",
+  bha: "aspirated",
+  // 外来音: borrowed sounds
   fa: "other",
-  kha: "other",
-  gha: "other",
-  ṭha: "other",
-  ḍha: "other",
-  tha: "other",
-  dha: "other",
-  pha: "other",
-  bha: "other",
 };
 
 const bandOf = (rom: string): ConsonantBandId => {
@@ -180,60 +194,62 @@ const bandOf = (rom: string): ConsonantBandId => {
 };
 
 /**
- * Canonical chart row order: the articulation families velar→labial, then
- * sibilant / glottal / semivowel-liquid. Within each family the related kin
- * (voiced, palatalized, prenasalized, aspirated) sit right after their plain
- * anchor, so toggling a band on slots its rows into place. Covers all 40
+ * Canonical chart row order, based on the Japanese gojūon rows
+ * (あ→か→さ→た→な→は→ま→や→ら→わ). Within each row the related kin
+ * (voiced, palatalized, prenasalized, aspirated, retroflex) sit right after the
+ * plain anchor, so toggling a band on slots its rows into place. な行 is its own
+ * row (the base nasals); retroflex stops fold into た行. Covers all 40
  * consonants exactly once.
  */
 const CHART_ROW_ROMS = [
-  // velar か
+  // か行
   "ka",
   "ga",
   "ⁿga",
   "ṅa",
   "kha",
   "gha",
-  // palatal ちゃ (all 拗音)
-  "ca",
-  "ja",
-  "ⁿja",
-  "ña",
-  "cha",
-  "jha",
-  // retroflex た(そり舌)
-  "ṭa",
-  "ḍa",
-  "ⁿḍa",
-  "ṇa",
-  "ṭha",
-  "ḍha",
-  // dental た
-  "ta",
-  "da",
-  "ⁿda",
-  "na",
-  "tha",
-  "dha",
-  // labial ま/ぱ/ば
-  "ma",
-  "ba",
-  "pa",
-  "ᵐba",
-  "bha",
-  "pha",
-  "fa",
-  // sibilant さ/しゃ
+  // さ行 (さ・しゃ・じゃ)
   "sa",
   "śa",
   "ṣa",
-  // glottal は
+  "ja",
+  "ⁿja",
+  "jha",
+  // た行 (歯 + そり舌 + ちゃ)
+  "ta",
+  "da",
+  "ⁿda",
+  "ṭa",
+  "ḍa",
+  "ⁿḍa",
+  "ca",
+  "tha",
+  "dha",
+  "ṭha",
+  "ḍha",
+  "cha",
+  // な行 (base nasals)
+  "na",
+  "ña",
+  "ṇa",
+  // は行 (は・ぱ・ば・ふぁ)
   "ha",
-  // semivowel / liquid や・ら・わ
+  "pa",
+  "ba",
+  "ᵐba",
+  "fa",
+  "pha",
+  "bha",
+  // ま行
+  "ma",
+  // や行
   "ya",
+  // ら行
   "ra",
   "la",
   "ḷa",
+  // わ行
   "va",
 ];
 
@@ -242,11 +258,20 @@ export const BAND_LABELS: Record<ConsonantBandId, string> = {
   seion: "清音",
   dakuon: "濁音・半濁音",
   yoon: "拗音",
-  other: "鼻濁音・その他",
+  nasal: "鼻濁音",
+  aspirated: "息付き",
+  other: "外来音",
 };
 
 export const CONSONANT_BANDS: ConsonantBand[] = (
-  ["seion", "dakuon", "yoon", "other"] as ConsonantBandId[]
+  [
+    "seion",
+    "dakuon",
+    "yoon",
+    "nasal",
+    "aspirated",
+    "other",
+  ] as ConsonantBandId[]
 ).map((id) => ({
   id,
   label: BAND_LABELS[id],
@@ -266,6 +291,8 @@ export interface ChartBands {
   seion: boolean;
   dakuon: boolean;
   yoon: boolean;
+  nasal: boolean;
+  aspirated: boolean;
   other: boolean;
 }
 
