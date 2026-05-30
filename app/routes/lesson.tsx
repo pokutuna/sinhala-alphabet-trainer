@@ -1,7 +1,8 @@
 import { useSearchParams } from "react-router";
 import { CharDetail } from "~/components/CharDetail";
+import { Glyph } from "~/components/Glyph";
 import { COURSES, type Course, lessonIds } from "~/lib/lessons";
-import { getCharById } from "~/lib/sinhala";
+import { getCharById, glyphOf } from "~/lib/sinhala";
 import type { Route } from "./+types/lesson";
 
 export function meta(_: Route.MetaArgs) {
@@ -28,17 +29,19 @@ export default function LessonPage() {
     setParams(next);
   };
 
-  const go = (delta: number) => {
-    const target = Math.min(Math.max(0, i + delta), ids.length - 1);
+  const goTo = (index: number) => {
+    const target = Math.min(Math.max(0, index), ids.length - 1);
     const next = new URLSearchParams(params);
     next.set("i", String(target));
     setParams(next);
   };
 
+  const go = (delta: number) => goTo(i + delta);
+
   const progress = ids.length ? ((i + 1) / ids.length) * 100 : 0;
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-8">
+    <main className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
         レッスン
       </h1>
@@ -76,6 +79,34 @@ export default function LessonPage() {
             style={{ width: `${progress}%` }}
           />
         </div>
+      </div>
+
+      {/* jump strip: every char in the course, click to jump */}
+      <div className="mb-4 flex flex-wrap gap-1.5">
+        {ids.map((id, idx) => {
+          const c = getCharById(id);
+          if (!c) return null;
+          const active = idx === i;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => goTo(idx)}
+              aria-current={active ? "true" : undefined}
+              title={c.rom}
+              className={
+                active
+                  ? "flex h-9 w-9 items-center justify-center rounded-lg border-2 border-blue-600 bg-blue-50 dark:bg-blue-950"
+                  : "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-gray-800"
+              }
+            >
+              <Glyph
+                text={glyphOf(c)}
+                className="text-lg leading-none text-gray-900 dark:text-white"
+              />
+            </button>
+          );
+        })}
       </div>
 
       {/* detail card */}
