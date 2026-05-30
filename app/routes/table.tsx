@@ -4,6 +4,7 @@ import { CharFocus } from "~/components/CharFocus";
 import { Glyph } from "~/components/Glyph";
 import { type ChartBands, type ConsonantBandId, chartRows } from "~/lib/levels";
 import {
+  AVARGA_PLACES,
   consonantMatrix,
   hodiyaConsonants,
   hodiyaVowels,
@@ -42,8 +43,10 @@ const MODES: { id: Mode; label: string }[] = [
   { id: "signs", label: "母音記号 (pilla)" },
 ];
 
-/** Modes where the miśra (borrowed/Sanskrit) letters can be toggled in. */
-const MISRA_MODES = new Set<Mode>(["hodiya", "matrix"]);
+/** Modes where the miśra (borrowed/Sanskrit) letters can be toggled in. The
+ *  matrix always shows every letter (its purpose is the full articulation
+ *  system), so only the hodiya list keeps the toggle. */
+const MISRA_MODES = new Set<Mode>(["hodiya"]);
 
 /** A small rose dot marking miśra (borrowed/Sanskrit) letters. Subtle: cells
  *  look identical to pure Sinhala apart from this dot under the romanization. */
@@ -139,6 +142,17 @@ export default function TablePage() {
     yoon: bandSet.has("yoon"),
     other: bandSet.has("other"),
   };
+  // matrix base vowel: each cell shows the consonant + this vowel sign (default
+  // a = bare consonant). ?base=<short rom>, ?mlong=on swaps to the long partner.
+  const matrixBase = params.get("base") ?? "a";
+  const matrixLong = params.get("mlong") === "on";
+  const matrixSlots = vowelSlots();
+  const matrixSlot =
+    matrixSlots.find((s) => s.shortSign.rom === matrixBase) ?? matrixSlots[0];
+  const matrixSign =
+    matrixLong && matrixSlot.longSign
+      ? matrixSlot.longSign
+      : matrixSlot.shortSign;
   const selectedId = params.get("char");
   const selected = selectedId ? getCharById(selectedId) : undefined;
 
@@ -189,103 +203,151 @@ export default function TablePage() {
         文字表
       </h1>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {MODES.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => setMode(m.id)}
-            className={
-              mode === m.id
-                ? "rounded-full bg-blue-600 px-4 py-1.5 text-sm font-medium text-white"
-                : "rounded-full bg-gray-100 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
-            }
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {MISRA_MODES.has(mode) && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-xs text-gray-500">混成字母 (miśra):</span>
-          <button
-            type="button"
-            onClick={() => setParam("misra", showMisra ? null : "on")}
-            aria-pressed={showMisra}
-            className={
-              showMisra
-                ? "rounded-full border border-rose-300 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
-                : "rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-            }
-          >
-            {showMisra ? "✓ 表示中" : "+ 借用語・梵語用を追加"}
-          </button>
-          {showMisra && (
-            <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-              <MisraDot />
-              の印 = 借用語・梵語用 (発音は対応する純粋字母と同じ)
-            </span>
-          )}
-        </div>
-      )}
-
-      {mode === "chart" && (
-        <div className="mb-4 space-y-2 text-sm">
-          {/* column (vowel) toggle: short always on, long optional */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-gray-500">母音 (列):</span>
-            {/* always-on short chip */}
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-medium ${VOWEL_CATEGORY_STYLE.short.button}`}
-            >
-              {VOWEL_CATEGORY_STYLE.short.label}（常に表示）
-            </span>
-            {/* long on/off */}
+      {/* sticky toolbar: stays pinned to the top while the (often tall) table
+          scrolls underneath, so the mode / vowel / band toggles are always
+          reachable on PC and mobile. The translucent blurred backdrop keeps the
+          table rows readable as they pass behind it. On narrow screens each
+          chip row scrolls horizontally instead of wrapping into a tall block. */}
+      <div className="sticky top-0 z-20 -mx-4 mb-4 border-b border-gray-200 bg-white/85 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-gray-700 dark:bg-gray-900/85 dark:supports-[backdrop-filter]:bg-gray-900/70">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible">
+          {MODES.map((m) => (
             <button
+              key={m.id}
               type="button"
-              onClick={() => setParam("vowels", showLong ? null : "long")}
-              aria-pressed={showLong}
+              onClick={() => setMode(m.id)}
               className={
-                showLong
-                  ? `rounded-full px-3 py-1 text-xs font-medium ${VOWEL_CATEGORY_STYLE.long.button}`
-                  : "rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                mode === m.id
+                  ? "shrink-0 rounded-full bg-blue-600 px-4 py-1.5 text-sm font-medium text-white"
+                  : "shrink-0 rounded-full bg-gray-100 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
               }
             >
-              {showLong ? "✓ " : "+ "}
-              {VOWEL_CATEGORY_STYLE.long.label}
+              {m.label}
             </button>
-          </div>
+          ))}
+        </div>
 
-          {/* row (consonant band) toggles — each band on/off independently */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-gray-500">子音 (行):</span>
-            {BAND_OPTIONS.map((o) => {
-              const on = chartBands[o.id];
+        {MISRA_MODES.has(mode) && (
+          <div className="-mx-4 mt-2 flex items-center gap-2 overflow-x-auto px-4 pb-1 text-sm sm:flex-wrap sm:overflow-visible">
+            <span className="shrink-0 text-xs text-gray-500">
+              混成字母 (miśra):
+            </span>
+            <button
+              type="button"
+              onClick={() => setParam("misra", showMisra ? null : "on")}
+              aria-pressed={showMisra}
+              className={
+                showMisra
+                  ? "shrink-0 rounded-full border border-rose-300 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+                  : "shrink-0 rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              }
+            >
+              {showMisra ? "✓ 表示中" : "+ 借用語・梵語用を追加"}
+            </button>
+            {showMisra && (
+              <span className="hidden shrink-0 items-center gap-1 text-xs text-gray-500 sm:inline-flex">
+                <MisraDot />
+                の印 = 借用語・梵語用 (発音は対応する純粋字母と同じ)
+              </span>
+            )}
+          </div>
+        )}
+
+        {mode === "chart" && (
+          <div className="mt-2 space-y-1.5 text-sm">
+            {/* column (vowel) toggle: short always on, long optional */}
+            <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible">
+              <span className="shrink-0 text-xs text-gray-500">母音 (列):</span>
+              {/* always-on short chip */}
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${VOWEL_CATEGORY_STYLE.short.button}`}
+              >
+                {VOWEL_CATEGORY_STYLE.short.label}（常に表示）
+              </span>
+              {/* long on/off */}
+              <button
+                type="button"
+                onClick={() => setParam("vowels", showLong ? null : "long")}
+                aria-pressed={showLong}
+                className={
+                  showLong
+                    ? `shrink-0 rounded-full px-3 py-1 text-xs font-medium ${VOWEL_CATEGORY_STYLE.long.button}`
+                    : "shrink-0 rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                }
+              >
+                {showLong ? "✓ " : "+ "}
+                {VOWEL_CATEGORY_STYLE.long.label}
+              </button>
+            </div>
+
+            {/* row (consonant band) toggles — each band on/off independently */}
+            <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible">
+              <span className="shrink-0 text-xs text-gray-500">子音 (行):</span>
+              {BAND_OPTIONS.map((o) => {
+                const on = chartBands[o.id];
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onClick={() => toggleBand(o.id)}
+                    aria-pressed={on}
+                    className={
+                      on
+                        ? `shrink-0 rounded-full px-3 py-1 text-xs font-medium ${o.button}`
+                        : "shrink-0 rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                    }
+                  >
+                    {on ? "✓ " : "+ "}
+                    {o.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {mode === "matrix" && (
+          <div className="-mx-4 mt-2 flex items-center gap-2 overflow-x-auto px-4 pb-1 text-sm sm:flex-wrap sm:overflow-visible">
+            <span className="shrink-0 text-xs text-gray-500">母音:</span>
+            {matrixSlots.map((s) => {
+              const on = s.shortSign.rom === matrixBase;
+              const rom =
+                matrixLong && s.longSign ? s.longSign.rom : s.shortSign.rom;
               return (
                 <button
-                  key={o.id}
+                  key={s.shortSign.id}
                   type="button"
-                  onClick={() => toggleBand(o.id)}
+                  onClick={() => setParam("base", s.shortSign.rom)}
                   aria-pressed={on}
                   className={
                     on
-                      ? `rounded-full px-3 py-1 text-xs font-medium ${o.button}`
-                      : "rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                      ? "shrink-0 rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white"
+                      : "shrink-0 rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                   }
                 >
-                  {on ? "✓ " : "+ "}
-                  {o.label}
+                  {rom}
                 </button>
               );
             })}
+            {/* long toggle: swaps every chip (and the matrix) to its long pair */}
+            <button
+              type="button"
+              onClick={() => setParam("mlong", matrixLong ? null : "on")}
+              aria-pressed={matrixLong}
+              className={
+                matrixLong
+                  ? "shrink-0 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                  : "shrink-0 rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              }
+            >
+              {matrixLong ? "✓ 長音" : "+ 長音"}
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {mode === "hodiya" && <HodiyaList misra={showMisra} onSelect={select} />}
       {mode === "matrix" && (
-        <ConsonantMatrixTable misra={showMisra} onSelect={select} />
+        <ConsonantMatrixTable sign={matrixSign} onSelect={select} />
       )}
       {mode === "chart" && (
         <SyllableGrid
@@ -583,6 +645,34 @@ function ConsonantCell({
   );
 }
 
+/** A matrix cell: the consonant composed with the chosen base vowel sign
+ *  (a = bare consonant). Fills its grid cell and centers its content. */
+function MatrixCell({
+  c,
+  sign,
+  onSelect,
+}: {
+  c: Consonant;
+  sign: VowelSlot["shortSign"];
+  onSelect: (id: string) => void;
+}) {
+  const syl = composeSyllable(c, sign);
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(syl.id)}
+      title={`${syl.rom} の詳細`}
+      className="flex h-full flex-col items-center justify-center gap-0.5 rounded-md px-1.5 py-1 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+    >
+      <Glyph
+        text={syl.glyph}
+        className="text-xl leading-none text-gray-900 dark:text-white"
+      />
+      <span className="text-[0.6rem] text-gray-500">{syl.rom}</span>
+    </button>
+  );
+}
+
 /** Hōḍiya order: the native traditional alphabet sequence — independent vowels
  *  first, then consonants in varga (place × manner) order. */
 function HodiyaList({
@@ -630,27 +720,34 @@ function HodiyaList({
   );
 }
 
-/** Consonant matrix: rows = articulation place, columns = manner. The avarga
- *  letters (semivowel / liquid / sibilant / glottal) follow as a flowing list. */
+/** Consonant matrix shown as two aligned grids:
+ *  - the dense stop grid: rows = the 5 stop places, columns = stop/nasal manners
+ *  - the avarga grid: rows = 接近音/摩擦音, columns = 半母音/流音/歯擦音/声門
+ *    (a cell may hold several letters, e.g. 接近音×流音 = ra la ḷa).
+ *  `sign` is the base vowel each cell is composed with (a = bare consonant). */
 function ConsonantMatrixTable({
-  misra,
+  sign,
   onSelect,
 }: {
-  misra: boolean;
+  sign: VowelSlot["shortSign"];
   onSelect: (id: string) => void;
 }) {
-  const { rows, avarga } = consonantMatrix({ misra });
-  const gridStyle = {
+  // the matrix always shows every letter (pure + borrowed); its purpose is the
+  // complete articulation system. Borrowed letters keep a subtle miśra dot.
+  const { rows, avarga } = consonantMatrix({ misra: true });
+  const stopGridStyle = {
     gridTemplateColumns: `5.5rem repeat(${MATRIX_MANNERS.length}, minmax(3rem, 1fr))`,
+  };
+  const avargaGridStyle = {
+    gridTemplateColumns: `5.5rem repeat(${AVARGA_PLACES.length}, minmax(3rem, 1fr))`,
   };
 
   return (
     <div className="space-y-5">
+      {/* stop grid: place × manner (the dense varga square) */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="grid min-w-[36rem] text-center" style={gridStyle}>
-          {/* corner */}
+        <div className="grid min-w-[36rem] text-center" style={stopGridStyle}>
           <div className="border-r border-b border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800" />
-          {/* manner column headers */}
           {MATRIX_MANNERS.map((m) => (
             <div
               key={m}
@@ -660,7 +757,6 @@ function ConsonantMatrixTable({
             </div>
           ))}
 
-          {/* place rows */}
           {rows.map((row) => (
             <Fragmentish key={row.place}>
               <div className="flex items-center justify-start border-r border-b border-gray-200 bg-gray-50 px-2 py-1 text-left text-[0.65rem] font-medium text-gray-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300">
@@ -670,9 +766,9 @@ function ConsonantMatrixTable({
                 c ? (
                   <div
                     key={c.id}
-                    className="border-b border-gray-100 p-1 dark:border-gray-800"
+                    className="flex items-center justify-center border-b border-gray-100 p-1 dark:border-gray-800"
                   >
-                    <ConsonantCell c={c} onSelect={onSelect} />
+                    <MatrixCell c={c} sign={sign} onSelect={onSelect} />
                   </div>
                 ) : (
                   <div
@@ -686,18 +782,59 @@ function ConsonantMatrixTable({
         </div>
       </div>
 
-      {avarga.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-            その他 (半母音・流音・歯擦音・声門) — avarga
-          </h2>
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-            {avarga.map((c) => (
-              <ConsonantCell key={c.id} c={c} onSelect={onSelect} />
+      {/* avarga grid: manner × place — semivowel/liquid (接近音) and
+          sibilant/glottal (摩擦音) that fall outside the stop square. */}
+      <section>
+        <h2 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+          その他 (avarga) — 接近音・摩擦音
+        </h2>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <div
+            className="grid min-w-[28rem] text-center"
+            style={avargaGridStyle}
+          >
+            <div className="border-r border-b border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800" />
+            {AVARGA_PLACES.map((p) => (
+              <div
+                key={p}
+                className="border-b border-gray-200 bg-gray-50 px-1 py-1.5 text-[0.65rem] font-medium text-gray-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300"
+              >
+                {PLACE_LABEL[p]}
+              </div>
+            ))}
+
+            {avarga.rows.map((row) => (
+              <Fragmentish key={row.manner}>
+                <div className="flex items-center justify-start border-r border-b border-gray-200 bg-gray-50 px-2 py-1 text-left text-[0.65rem] font-medium text-gray-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300">
+                  {MANNER_LABEL[row.manner]}
+                </div>
+                {row.cells.map((cell, idx) =>
+                  cell.length > 0 ? (
+                    <div
+                      key={`${row.manner}:${AVARGA_PLACES[idx]}`}
+                      className="flex flex-wrap items-center justify-center gap-1 border-b border-gray-100 p-1 dark:border-gray-800"
+                    >
+                      {cell.map((c) => (
+                        <MatrixCell
+                          key={c.id}
+                          c={c}
+                          sign={sign}
+                          onSelect={onSelect}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      key={`${row.manner}:${AVARGA_PLACES[idx]}`}
+                      className="border-b border-gray-100 bg-gray-50/40 dark:border-gray-800 dark:bg-gray-900/20"
+                    />
+                  ),
+                )}
+              </Fragmentish>
             ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }

@@ -89,7 +89,7 @@ export function hodiyaVowels(opts: { misra: boolean }): Vowel[] {
 
 // --- consonant matrix (place × manner) ---
 
-/** The places that form the classic 5×stop varga grid. */
+/** The 5 stop vargas — the dense part of the matrix (rows). */
 export const MATRIX_PLACES: Place[] = [
   "velar",
   "palatal",
@@ -98,7 +98,7 @@ export const MATRIX_PLACES: Place[] = [
   "labial",
 ];
 
-/** The manner columns shown in the matrix (the stop/nasal manners). */
+/** The stop/nasal manner columns shown in the main matrix. */
 export const MATRIX_MANNERS: Manner[] = [
   "voiceless",
   "voiceless_aspirated",
@@ -109,29 +109,54 @@ export const MATRIX_MANNERS: Manner[] = [
 ];
 
 export interface ConsonantMatrix {
-  /** rows[place] -> manner -> consonant | null (null = empty cell). */
+  /** rows[place] -> manner -> consonant | null (stop cells hold at most one). */
   rows: { place: Place; cells: (Consonant | null)[] }[];
-  /** Letters whose place is outside the 5-varga grid (semivowel, liquid,
-   *  sibilant, glottal); rendered as a flowing list under the grid. */
-  avarga: Consonant[];
+  /** The avarga letters arranged as a separate small grid (see AVARGA_*). */
+  avarga: AvargaMatrix;
 }
 
-/** Build the place×manner matrix. `misra` toggles borrowed letters; off cells
- *  become empty placeholders so the grid stays aligned. */
+/** Avarga places as columns of the small grid. labial is included for fa
+ *  (ふぁ, 唇摩擦音) — the one borrowed letter whose manner (fricative) falls
+ *  outside the stop grid even though its place sits in the stop square. */
+export const AVARGA_PLACES: Place[] = [
+  "semivowel",
+  "liquid",
+  "sibilant",
+  "labial",
+  "glottal",
+];
+
+/** Avarga manners as the two rows of the small grid. */
+export const AVARGA_MANNERS: Manner[] = ["approximant", "fricative"];
+
+export interface AvargaMatrix {
+  /** rows[manner] -> place -> consonants (a cell may hold several, e.g.
+   *  approximant×liquid = ra la ḷa; empty cells are an empty array). */
+  rows: { manner: Manner; cells: Consonant[][] }[];
+}
+
+/** Build the stop place×manner matrix plus the avarga manner×place grid.
+ *  `misra` toggles borrowed letters; empty cells stay empty so grids align. */
 export function consonantMatrix(opts: { misra: boolean }): ConsonantMatrix {
   const pool = consonants.filter((c) => (opts.misra ? true : !c.misra));
+  const sortKey = (a: Consonant, b: Consonant) =>
+    consonantSortKey(a) - consonantSortKey(b);
   const find = (place: Place, manner: Manner) =>
     pool.find((c) => c.place === place && c.manner === manner) ?? null;
+  const cellOf = (place: Place, manner: Manner) =>
+    pool.filter((c) => c.place === place && c.manner === manner).sort(sortKey);
 
   const rows = MATRIX_PLACES.map((place) => ({
     place,
     cells: MATRIX_MANNERS.map((manner) => find(place, manner)),
   }));
 
-  const gridPlaces = new Set<string>(MATRIX_PLACES);
-  const avarga = pool
-    .filter((c) => !gridPlaces.has(c.place))
-    .sort((a, b) => consonantSortKey(a) - consonantSortKey(b));
+  const avarga: AvargaMatrix = {
+    rows: AVARGA_MANNERS.map((manner) => ({
+      manner,
+      cells: AVARGA_PLACES.map((place) => cellOf(place, manner)),
+    })),
+  };
 
   return { rows, avarga };
 }
