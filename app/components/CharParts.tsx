@@ -3,6 +3,7 @@ import { getPartsArt, type PartsArt, partColor } from "~/lib/parts";
 import {
   type Consonant,
   type SinhalaChar,
+  type Syllable,
   type VowelSign,
   vowelSigns,
 } from "~/lib/sinhala";
@@ -29,11 +30,38 @@ export function CharParts({ char }: CharPartsProps) {
 
   if (char.family === "consonant") return <ConsonantParts char={char} />;
   if (char.family === "sign") return <SignParts sign={char} />;
+  if (char.family === "syllable") return <SyllableParts syllable={char} />;
   // independent vowel: a standalone letter with no base/sign split
   return (
     <p className="text-sm text-gray-600 dark:text-gray-300">
       独立母音(単独で書く形)。子音には母音記号(pilla)として付きます。
     </p>
+  );
+}
+
+function SyllableParts({ syllable }: { syllable: Syllable }) {
+  const { consonant, sign } = syllable;
+  return (
+    <div>
+      <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+        <span style={{ color: BASE_COLOR }}>子音字 {consonant.rom}</span> と{" "}
+        <span style={{ color: SIGN_COLOR }}>
+          母音記号 {sign.rom === "a" ? "(なし/固有の a)" : sign.rom}
+        </span>{" "}
+        の合成。
+      </p>
+      <div className="flex items-center gap-4">
+        <SplitGlyph
+          base={consonant.glyph}
+          sign={sign.sign}
+          className="text-6xl leading-none"
+        />
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          {describeComposition(consonant, sign)}
+        </p>
+      </div>
+      <Legend />
+    </div>
   );
 }
 

@@ -105,7 +105,19 @@ export interface VowelSign extends RawVowelSign {
   family: "sign";
 }
 
-export type SinhalaChar = Consonant | Vowel | VowelSign;
+/** A composed syllable = consonant + vowel sign, shown like a character. */
+export interface Syllable {
+  id: string; // syl:<consonantRom>:<signRom>
+  family: "syllable";
+  consonant: Consonant;
+  sign: VowelSign;
+  glyph: string;
+  rom: string;
+  ipa: string;
+  kana: string;
+}
+
+export type SinhalaChar = Consonant | Vowel | VowelSign | Syllable;
 
 export const consonants: Consonant[] = data.consonants.map((c) => ({
   ...c,
@@ -140,6 +152,13 @@ for (const c of [...consonants, ...independentVowels, ...vowelSigns]) {
 }
 
 export function getCharById(id: string): SinhalaChar | undefined {
+  if (id.startsWith("syl:")) {
+    const [, cRom, sRom] = id.split(":");
+    const consonant = consonants.find((c) => c.rom === cRom);
+    const sign = vowelSigns.find((s) => s.rom === sRom);
+    if (consonant && sign) return composeSyllable(consonant, sign);
+    return undefined;
+  }
   return byId.get(id);
 }
 
@@ -198,14 +217,6 @@ export function glyphOf(c: SinhalaChar): string {
   return c.glyph;
 }
 
-/** A composed syllable = consonant + vowel sign. */
-export interface Syllable {
-  consonant: Consonant;
-  sign: VowelSign;
-  glyph: string;
-  rom: string;
-}
-
 /** Compose a consonant with a vowel sign into a syllable. */
 export function composeSyllable(
   consonant: Consonant,
@@ -216,9 +227,15 @@ export function composeSyllable(
   const base = consonant.rom.replace(/a$/, "");
   const rom = sign.rom === "a" ? consonant.rom : base + sign.rom;
   return {
+    id: `syl:${consonant.rom}:${sign.rom}`,
+    family: "syllable",
     consonant,
     sign,
     glyph: consonant.glyph + sign.sign,
     rom,
+    // consonant.ipa carries no vowel; sign.ipa is the vowel → concatenation
+    ipa: consonant.ipa + sign.ipa,
+    // kana is only reliable for the inherent-a row (か/が…); leave others blank
+    kana: sign.rom === "a" ? consonant.kana : "",
   };
 }

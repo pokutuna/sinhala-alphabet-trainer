@@ -289,9 +289,12 @@ function SyllableGrid({
         {cols.map((s) => {
           const tint = VOWEL_CATEGORY_STYLE[vowelCategory(s)].header;
           return (
-            <div
+            <button
               key={s.id}
-              className={`border-b border-gray-200 py-1.5 dark:border-gray-700 ${tint}`}
+              type="button"
+              onClick={() => onSelect(s.id)}
+              title={`${s.rom} の母音記号`}
+              className={`border-b border-gray-200 py-1.5 hover:brightness-95 dark:border-gray-700 ${tint}`}
             >
               <Glyph
                 text={glyphOf(s)}
@@ -301,7 +304,7 @@ function SyllableGrid({
                 {s.rom}
                 {isLongSign(s) ? "ː" : ""}
               </span>
-            </div>
+            </button>
           );
         })}
 
@@ -342,7 +345,7 @@ function SyllableGrid({
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => onSelect(c.id)}
+                        onClick={() => onSelect(syl.id)}
                         title={syl.rom}
                         className="flex flex-col items-center justify-center border-b border-gray-100 py-1 hover:bg-blue-50 dark:border-gray-800 dark:hover:bg-gray-800"
                       >
