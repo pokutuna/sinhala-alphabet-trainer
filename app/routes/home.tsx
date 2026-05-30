@@ -1,117 +1,75 @@
-import { Code, ExternalLink, GitBranch, Rocket, Zap } from "lucide-react";
+import { Link } from "react-router";
+import { Glyph } from "~/components/Glyph";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta(_: Route.MetaArgs) {
   return [
-    { title: "React Router SPA Template" },
+    { title: "Sinhala Alphabet Trainer" },
     {
       name: "description",
       content:
-        "A modern SPA template with React Router and Tailwind CSS, ready for GitHub Pages deployment",
+        "シンハラ文字を表とクイズで学ぶ。子音マトリクス・母音・母音記号、覚え方とフォント比較つき。",
     },
   ];
 }
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <header className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            React Router SPA Template
-          </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            A modern, production-ready template for building single-page
-            applications
-          </p>
-          <a
-            href="https://github.com/pokutuna/react-router-spa-starter"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
-          >
-            <ExternalLink size={20} />
-            View on GitHub
-          </a>
-        </header>
+    <main className="mx-auto max-w-3xl px-4 py-16">
+      <header className="mb-12 text-center">
+        <Glyph
+          text="සිංහල"
+          className="block text-7xl text-gray-900 dark:text-white"
+        />
+        <h1 className="mt-4 text-3xl font-bold text-gray-900 dark:text-white">
+          シンハラ文字トレーナー
+        </h1>
+        <p className="mt-3 text-gray-600 dark:text-gray-300">
+          子音・母音・母音記号を、表で見てクイズで覚える。
+        </p>
+      </header>
 
-        <section className="grid md:grid-cols-2 gap-6 mb-16">
-          <FeatureCard
-            icon={<Zap className="text-yellow-500" size={32} />}
-            title="Lightning Fast"
-            description="Built with React Router v7 and Vite for optimal performance and developer experience"
-          />
-          <FeatureCard
-            icon={<Code className="text-blue-500" size={32} />}
-            title="Modern Stack"
-            description="TypeScript, Tailwind CSS v4, and all the latest web development tools"
-          />
-          <FeatureCard
-            icon={<Rocket className="text-purple-500" size={32} />}
-            title="GitHub Pages Ready"
-            description="Pre-configured for seamless deployment to GitHub Pages with proper routing"
-          />
-          <FeatureCard
-            icon={<GitBranch className="text-gray-700" size={32} />}
-            title="Template Repository"
-            description="Use this as a template to quickly start your next project with best practices"
-          />
-        </section>
-
-        <section className="bg-white rounded-lg shadow-md p-8 mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Start</h2>
-          <div className="space-y-4">
-            <CodeBlock
-              title="1. Clone or use as template"
-              code="git clone https://github.com/pokutuna/react-router-spa-starter.git"
-            />
-            <CodeBlock title="2. Install dependencies" code="npm install" />
-            <CodeBlock title="3. Start development server" code="npm run dev" />
-            <CodeBlock title="4. Build for production" code="npm run build" />
-          </div>
-        </section>
-
-        <footer className="text-center text-gray-600">
-          <p className="mb-2">
-            Built with React Router, TypeScript, and Tailwind CSS
-          </p>
-          <p className="text-sm">
-            Customize this template to create your own amazing SPA
-          </p>
-        </footer>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card
+          to="/table"
+          title="文字表で見る"
+          desc="調音点×調音法のマトリクスや母音記号を一覧。タップで大きな表示・覚え方・フォント比較。"
+        />
+        <Card
+          to="/quiz"
+          title="クイズで覚える"
+          desc="文字↔読み(かな/ローマ字/IPA)を4択で。難易度を選んで累積的に練習。"
+        />
       </div>
-    </div>
+
+      <section className="mt-12 text-sm text-gray-500">
+        <p>
+          シンハラ文字はアブギダ(音節文字)。子音字が「子音+a」を内蔵し、母音記号
+          (pilla) を付けて他の母音を表します。まずは Lv1 の基本子音から。
+        </p>
+      </section>
+    </main>
   );
 }
 
-interface FeatureCardProps {
-  icon: React.ReactNode;
+function Card({
+  to,
+  title,
+  desc,
+}: {
+  to: string;
   title: string;
-  description: string;
-}
-
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
+  desc: string;
+}) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      <div className="mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
-    </div>
-  );
-}
-
-interface CodeBlockProps {
-  title: string;
-  code: string;
-}
-
-function CodeBlock({ title, code }: CodeBlockProps) {
-  return (
-    <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">{title}</p>
-      <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
-        <code>{code}</code>
-      </pre>
-    </div>
+    <Link
+      to={to}
+      className="block rounded-2xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900"
+    >
+      <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+        {title}
+      </h2>
+      <p className="text-sm text-gray-600 dark:text-gray-300">{desc}</p>
+    </Link>
   );
 }

@@ -853,11 +853,7 @@
     "compare_tip": "同じ音節(特に රු/තු/කු などの連結形)を複数フォントで並べると、合字の有無やぶら下げ形の差が観察できる"
   },
   "quiz": {
-    "answer_fields": [
-      "rom",
-      "ipa",
-      "kana"
-    ],
+    "answer_fields": ["rom", "ipa", "kana"],
     "modes": [
       {
         "id": "glyph_to_rom",

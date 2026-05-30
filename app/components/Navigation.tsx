@@ -1,26 +1,32 @@
-import { Link } from "react-router";
+import { NavLink } from "react-router";
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive
+    ? "text-gray-900 dark:text-white font-medium"
+    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors";
 
 export function Navigation() {
   return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="max-w-4xl mx-auto px-4">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b dark:border-gray-800">
+      <div className="max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-xl font-bold text-gray-900">
-            React Router SPA
-          </Link>
+          <NavLink
+            to="/"
+            className="text-xl font-bold text-gray-900 dark:text-white"
+          >
+            සිංහල{" "}
+            <span className="text-base font-normal text-gray-500">trainer</span>
+          </NavLink>
           <div className="flex gap-6">
-            <Link
-              to="/"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              to="/sample"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Sample
-            </Link>
+            <NavLink to="/" className={linkClass} end>
+              ホーム
+            </NavLink>
+            <NavLink to="/table" className={linkClass}>
+              表
+            </NavLink>
+            <NavLink to="/quiz" className={linkClass}>
+              クイズ
+            </NavLink>
           </div>
         </div>
       </div>

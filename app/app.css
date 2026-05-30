@@ -14,3 +14,12 @@ body {
     color-scheme: dark;
   }
 }
+
+/* Sinhala glyph rendering. Default family is Noto Sans Sinhala (loaded in
+   root.tsx). The focus screen swaps the family via the --sinhala-font variable
+   to compare glyph shapes across fonts. */
+.sinhala {
+  font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
+  /* avoid clipping of top / bottom / left vowel signs on large glyphs */
+  line-height: 1.4;
+}
