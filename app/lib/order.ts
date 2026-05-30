@@ -160,3 +160,70 @@ export function consonantMatrix(opts: { misra: boolean }): ConsonantMatrix {
 
   return { rows, avarga };
 }
+
+// --- consonant glyph-family groups (for the vowel-sign mode's 2-step picker) ---
+
+/**
+ * Consonants grouped by glyph family: a "base form" (the varga's voiceless
+ * letter, or a representative) anchors each group, and the related letters
+ * (aspirates / voiced / nasal / prenasalized of the same articulation, which
+ * share the base glyph shape) follow in varga order. Covers all 40 letters.
+ */
+export interface ConsonantGroup {
+  /** rom of the base/representative letter (also the group id). */
+  baseRom: string;
+  /** Short Japanese label for the group chip. */
+  label: string;
+  /** Member consonants in display order (the base first). */
+  members: Consonant[];
+}
+
+const consonantByRomOrder = new Map(consonants.map((c) => [c.rom, c]));
+const conByRom = (rom: string): Consonant => {
+  const c = consonantByRomOrder.get(rom);
+  if (!c) throw new Error(`unknown consonant rom: ${rom}`);
+  return c;
+};
+
+/** group base rom -> member roms (base first, then glyph-related letters). */
+const CONSONANT_GROUP_DEFS: {
+  baseRom: string;
+  label: string;
+  roms: string[];
+}[] = [
+  {
+    baseRom: "ka",
+    label: "ka 系",
+    roms: ["ka", "kha", "ga", "gha", "ṅa", "ⁿga"],
+  },
+  {
+    baseRom: "ca",
+    label: "ca 系",
+    roms: ["ca", "cha", "ja", "jha", "ña", "ⁿja"],
+  },
+  {
+    baseRom: "ṭa",
+    label: "ṭa 系",
+    roms: ["ṭa", "ṭha", "ḍa", "ḍha", "ṇa", "ⁿḍa"],
+  },
+  {
+    baseRom: "ta",
+    label: "ta 系",
+    roms: ["ta", "tha", "da", "dha", "na", "ⁿda"],
+  },
+  {
+    baseRom: "pa",
+    label: "pa 系",
+    roms: ["pa", "pha", "ba", "bha", "ma", "ᵐba", "fa"],
+  },
+  { baseRom: "ya", label: "ya 系", roms: ["ya", "ra", "la", "va", "ḷa"] },
+  { baseRom: "sa", label: "sa 系", roms: ["śa", "ṣa", "sa", "ha"] },
+];
+
+export const CONSONANT_GROUPS: ConsonantGroup[] = CONSONANT_GROUP_DEFS.map(
+  (g) => ({
+    baseRom: g.baseRom,
+    label: g.label,
+    members: g.roms.map(conByRom),
+  }),
+);

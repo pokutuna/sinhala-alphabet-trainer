@@ -5,6 +5,7 @@ import { Glyph } from "~/components/Glyph";
 import { type ChartBands, type ConsonantBandId, chartRows } from "~/lib/levels";
 import {
   AVARGA_PLACES,
+  CONSONANT_GROUPS,
   consonantMatrix,
   hodiyaConsonants,
   hodiyaVowels,
@@ -153,6 +154,15 @@ export default function TablePage() {
     matrixLong && matrixSlot.longSign
       ? matrixSlot.longSign
       : matrixSlot.shortSign;
+  // signs mode: pick a consonant glyph-family group, then a consonant in it;
+  // the table then shows that consonant with every vowel sign. ?cgroup=<base
+  // rom>, ?cons=<consonant rom> (defaults to the group's base).
+  const signGroup =
+    CONSONANT_GROUPS.find((g) => g.baseRom === params.get("cgroup")) ??
+    CONSONANT_GROUPS[0];
+  const signConsonant =
+    signGroup.members.find((c) => c.rom === params.get("cons")) ??
+    signGroup.members[0];
   const selectedId = params.get("char");
   const selected = selectedId ? getCharById(selectedId) : undefined;
 
@@ -167,6 +177,15 @@ export default function TablePage() {
     const next = new URLSearchParams(params);
     if (value === null) next.delete(key);
     else next.set(key, value);
+    setParams(next);
+  };
+
+  // pick a consonant glyph-family group (signs mode); resets the chosen
+  // consonant to the group's base form.
+  const selectSignGroup = (baseRom: string) => {
+    const next = new URLSearchParams(params);
+    next.set("cgroup", baseRom);
+    next.delete("cons");
     setParams(next);
   };
 
@@ -343,6 +362,96 @@ export default function TablePage() {
             </button>
           </div>
         )}
+
+        {mode === "signs" && (
+          <div className="mt-2 space-y-1 text-sm">
+            {/* step 1: pick a glyph-family group — big base glyph, small rom */}
+            <span className="block text-xs text-gray-500">① 系統を選ぶ</span>
+            <div className="-mx-4 flex items-stretch gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible">
+              {CONSONANT_GROUPS.map((g) => {
+                const on = g.baseRom === signGroup.baseRom;
+                const base = g.members[0];
+                return (
+                  <button
+                    key={g.baseRom}
+                    type="button"
+                    onClick={() => selectSignGroup(g.baseRom)}
+                    aria-pressed={on}
+                    className={
+                      on
+                        ? "flex shrink-0 flex-col items-center gap-0.5 rounded-lg border-2 border-blue-500 bg-blue-50 px-3 py-1.5 dark:border-blue-400 dark:bg-blue-950/40"
+                        : "flex shrink-0 flex-col items-center gap-0.5 rounded-lg border border-gray-300 px-3 py-1.5 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
+                    }
+                  >
+                    <Glyph
+                      text={base.glyph}
+                      className={
+                        on
+                          ? "text-2xl leading-none text-blue-700 dark:text-blue-200"
+                          : "text-2xl leading-none text-gray-800 dark:text-gray-100"
+                      }
+                    />
+                    <span
+                      className={
+                        on
+                          ? "text-[0.6rem] font-medium text-blue-600 dark:text-blue-300"
+                          : "text-[0.6rem] text-gray-500"
+                      }
+                    >
+                      {g.baseRom}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* step 2: pick a consonant within the group — same big-glyph card.
+                the label echoes the chosen group so the link reads top→bottom. */}
+            <span className="block pt-1 text-xs text-gray-500">
+              ②{" "}
+              <span className="font-medium text-blue-600 dark:text-blue-300">
+                {signGroup.baseRom} 系
+              </span>{" "}
+              の子音を選ぶ
+            </span>
+            <div className="-mx-4 flex items-stretch gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible">
+              {signGroup.members.map((c) => {
+                const on = c.rom === signConsonant.rom;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setParam("cons", c.rom)}
+                    aria-pressed={on}
+                    className={
+                      on
+                        ? "flex shrink-0 flex-col items-center gap-0.5 rounded-lg border-2 border-emerald-500 bg-emerald-50 px-3 py-1.5 dark:border-emerald-400 dark:bg-emerald-950/40"
+                        : "flex shrink-0 flex-col items-center gap-0.5 rounded-lg border border-gray-300 px-3 py-1.5 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
+                    }
+                  >
+                    <Glyph
+                      text={c.glyph}
+                      className={
+                        on
+                          ? "text-2xl leading-none text-emerald-700 dark:text-emerald-200"
+                          : "text-2xl leading-none text-gray-800 dark:text-gray-100"
+                      }
+                    />
+                    <span
+                      className={
+                        on
+                          ? "text-[0.6rem] font-medium text-emerald-600 dark:text-emerald-300"
+                          : "text-[0.6rem] text-gray-500"
+                      }
+                    >
+                      {c.rom}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {mode === "hodiya" && <HodiyaList misra={showMisra} onSelect={select} />}
@@ -356,7 +465,9 @@ export default function TablePage() {
           onSelect={select}
         />
       )}
-      {mode === "signs" && <SignTable onSelect={select} />}
+      {mode === "signs" && (
+        <SignTable consonant={signConsonant} onSelect={select} />
+      )}
 
       <p className="mt-6 text-sm text-gray-500">
         セルをタップすると、その文字の詳細(大きな表示・覚え方・フォント比較)が
@@ -389,18 +500,134 @@ function MisraCell({
   );
 }
 
-function SignTable({ onSelect }: { onSelect: (id: string) => void }) {
+/** Dotted circle (U+25CC): a placeholder base so a combining vowel sign can be
+ *  shown on its own as a "part". */
+const DOTTED_CIRCLE = "◌";
+
+/** Japanese word for where a vowel sign attaches. */
+const POSITION_WORD: Record<string, string> = {
+  none: "そのまま",
+  right: "右",
+  top: "上",
+  bottom: "下",
+  left: "左",
+  "left+top": "左上",
+  both: "左右",
+};
+
+/** One syllable button (used in the positional layout). Shows the composed
+ *  glyph, its rom, and "<位置> ◌<part>" so the attach side and the actual sign
+ *  part are both visible without a separate label. */
+function SignSyllableButton({
+  consonant,
+  sign,
+  onSelect,
+}: {
+  consonant: Consonant;
+  sign: (typeof vowelSigns)[number];
+  onSelect: (id: string) => void;
+}) {
+  const syl = composeSyllable(consonant, sign);
+  // Two-part signs (o ō au) split to both sides of the consonant; rendering
+  // them on a lone dotted circle breaks, so show the position word only.
+  const part =
+    sign.sign && sign.position !== "both" ? DOTTED_CIRCLE + sign.sign : null;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(syl.id)}
+      title={`${syl.rom}（${sign.name}）の詳細`}
+      className="flex min-w-[3.5rem] flex-col items-center gap-0.5 rounded-lg border border-gray-200 bg-white px-2 py-1.5 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+    >
+      <Glyph
+        text={syl.glyph}
+        className="text-2xl leading-none text-gray-900 dark:text-white"
+      />
+      <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
+        {syl.rom}
+      </span>
+      <span className="text-[0.6rem] text-gray-400">
+        {POSITION_WORD[sign.position] ?? sign.position}
+        {part && (
+          <>
+            {" "}
+            <Glyph text={part} className="text-gray-500 dark:text-gray-300" />
+          </>
+        )}
+      </span>
+    </button>
+  );
+}
+
+/** Vowel-sign layout for one chosen consonant: the base letter sits big in the
+ *  center, and each vowel sign is placed in the zone (上/下/左/右/左上/左右) where
+ *  its sign part actually attaches. The center base letter is itself selectable
+ *  (it is the inherent-"a" syllable). */
+function SignTable({
+  consonant,
+  onSelect,
+}: {
+  consonant: Consonant;
+  onSelect: (id: string) => void;
+}) {
+  const byPos = (pos: string) => vowelSigns.filter((s) => s.position === pos);
+  const zone = (pos: string, className = "") => (
+    <div
+      className={`flex flex-wrap items-center justify-center gap-1.5 ${className}`}
+    >
+      {byPos(pos).map((s) => (
+        <SignSyllableButton
+          key={s.id}
+          consonant={consonant}
+          sign={s}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
+  );
+  // the inherent-"a" syllable, used for the clickable center letter.
+  const aSign = vowelSigns.find((s) => s.position === "none");
+  const aSyl = aSign ? composeSyllable(consonant, aSign) : null;
+
   return (
     <div>
-      <p className="mb-3 flex items-center gap-2 text-sm text-gray-500">
-        キャリア
-        <Glyph text="ක" className="text-2xl text-gray-900 dark:text-white" />
-        に母音記号を付けた形で表示しています。
+      <p className="mb-3 text-sm text-gray-500">
+        基本の文字{" "}
+        <span className="font-medium text-gray-700 dark:text-gray-200">
+          {consonant.rom}（{consonant.kana}）
+        </span>{" "}
+        に母音記号が付く位置ごとに並べています。
+        <Glyph text={DOTTED_CIRCLE} /> は記号が付く位置の目安です。
       </p>
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-        {vowelSigns.map((s) => (
-          <CharCell key={s.id} char={s} onSelect={onSelect} />
-        ))}
+
+      {/* 2D positional layout: center = base letter; signs sit in the corner /
+          side where they actually attach (左上=ē, 上=i, 左右=o, 左=e, 右=ā…, 下=u). */}
+      <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-900/30">
+        <div className="grid grid-cols-3 items-center justify-items-center gap-2">
+          {/* row 1: 左上 / 上 / (空き) */}
+          {zone("left+top")}
+          {zone("top")}
+          <div />
+          {/* row 2: 左 / 中央(基本形) / 右 */}
+          {zone("left")}
+          <button
+            type="button"
+            onClick={() => aSyl && onSelect(aSyl.id)}
+            title={`${consonant.rom}（${consonant.kana}）の詳細`}
+            className="flex flex-col items-center rounded-xl border-2 border-gray-300 bg-white px-5 py-3 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+          >
+            <Glyph
+              text={consonant.glyph}
+              className="text-5xl leading-none text-gray-900 dark:text-white"
+            />
+            <span className="mt-1 text-xs text-gray-500">{consonant.rom}</span>
+          </button>
+          {zone("right")}
+          {/* row 3: (空き) / 下 / 左右 */}
+          <div />
+          {zone("bottom")}
+          {zone("both")}
+        </div>
       </div>
     </div>
   );
