@@ -1,0 +1,37 @@
+{
+  "name": "sinhala-alphabet-trainer",
+  "version": "0.1.0",
+  "description": "An app for learning and practicing the Sinhala alphabet",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+    "preview": "react-router build && vite preview",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
+  },
+  "dependencies": {
+    "@react-router/node": "^7.15.1",
+    "@react-router/serve": "^7.15.1",
+    "isbot": "^5.1.40",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.15.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.15",
+    "@react-router/dev": "^7.15.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.8.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13"
+  }
+}
