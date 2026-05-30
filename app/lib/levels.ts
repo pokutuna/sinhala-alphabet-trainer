@@ -278,11 +278,6 @@ export const CONSONANT_BANDS: ConsonantBand[] = (
   consonants: CHART_ROW_ROMS.filter((rom) => bandOf(rom) === id).map(con),
 }));
 
-/** Every consonant id in chart order — used by the lesson course. */
-export function allConsonantIdsInOrder(): string[] {
-  return CHART_ROW_ROMS.map((rom) => con(rom).id);
-}
-
 // --- interleaved chart-row model for the composition table ---
 
 /** Which bands the composition chart currently shows; each toggled

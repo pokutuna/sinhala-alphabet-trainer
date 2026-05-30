@@ -14,7 +14,12 @@ export function meta(_: Route.MetaArgs) {
 
 export default function LessonPage() {
   const [params, setParams] = useSearchParams();
-  const course = (params.get("course") as Course) || "vowels";
+  // fall back to the first course for missing / unknown (e.g. old bookmarked)
+  // course params, so lessonIds always resolves to a real id list.
+  const courseParam = params.get("course");
+  const course: Course = COURSES.some((c) => c.id === courseParam)
+    ? (courseParam as Course)
+    : COURSES[0].id;
   const ids = lessonIds(course);
   const rawI = Number(params.get("i") ?? 0);
   const i = Number.isFinite(rawI)
@@ -65,6 +70,11 @@ export default function LessonPage() {
         ))}
       </div>
 
+      {/* course description */}
+      <p className="mb-4 rounded-lg bg-blue-50 px-4 py-3 text-sm text-gray-700 dark:bg-blue-950/40 dark:text-gray-200">
+        {COURSES.find((c) => c.id === course)?.about}
+      </p>
+
       {/* progress */}
       <div className="mb-4">
         <div className="mb-1 flex justify-between text-xs text-gray-500">
@@ -81,7 +91,7 @@ export default function LessonPage() {
         </div>
       </div>
 
-      {/* jump strip: every char in the course, click to jump */}
+      {/* jump strip: every char in the course (glyph + reading), click to jump */}
       <div className="mb-4 flex flex-wrap gap-1.5">
         {ids.map((id, idx) => {
           const c = getCharById(id);
@@ -96,14 +106,17 @@ export default function LessonPage() {
               title={c.rom}
               className={
                 active
-                  ? "flex h-9 w-9 items-center justify-center rounded-lg border-2 border-blue-600 bg-blue-50 dark:bg-blue-950"
-                  : "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                  ? "flex w-11 flex-col items-center justify-center rounded-lg border-2 border-blue-600 bg-blue-50 px-1 py-1 dark:bg-blue-950"
+                  : "flex w-11 flex-col items-center justify-center rounded-lg border border-gray-200 px-1 py-1 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-gray-800"
               }
             >
               <Glyph
                 text={glyphOf(c)}
                 className="text-lg leading-none text-gray-900 dark:text-white"
               />
+              <span className="mt-0.5 max-w-full truncate text-[0.6rem] leading-tight text-gray-500">
+                {c.rom}
+              </span>
             </button>
           );
         })}
