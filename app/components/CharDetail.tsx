@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { CharBadges } from "~/components/CharBadges";
 import { CharParts } from "~/components/CharParts";
 import { Glyph } from "~/components/Glyph";
+import { badgesFor } from "~/lib/courses";
 import { describeSign } from "~/lib/explain";
 import {
   type Consonant,
@@ -42,6 +44,7 @@ export function CharDetail({
 
   const glyph = glyphOf(char);
   const mnemonic = "mnemonic" in char ? char.mnemonic : undefined;
+  const badges = badgesFor(char);
 
   return (
     <div>
@@ -56,6 +59,11 @@ export function CharDetail({
         />
         {char.family === "sign" && (
           <p className="mt-1 text-sm text-gray-500">キャリア「ක」に付けた形</p>
+        )}
+        {badges.length > 0 && (
+          <div className="mt-3 flex justify-center">
+            <CharBadges badges={badges} />
+          </div>
         )}
       </div>
 
