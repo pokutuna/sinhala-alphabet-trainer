@@ -1,0 +1,938 @@
+{
+  "meta": {
+    "title": "Sinhala script learning data",
+    "script": "Sinhala (සිංහල අක්ෂර මාලාව)",
+    "type": "abugida",
+    "romanization": "ISO 15919 ベース",
+    "notes": [
+      "子音字は単体で『子音+a』を表す(固有母音)。",
+      "母音は語頭では独立母音字、子音の後ろでは母音記号(pilla)になる=同じ母音の2つの姿。",
+      "hal kirīma(්)で固有のaを消し子音単独にする。",
+      "misra=true はサンスクリット/パーリ/外来語用(混成字母)。純粋シンハラ学習では後回し可。",
+      "kana は近似(正確な対応ではない)。"
+    ]
+  },
+  "vowel_signs": [
+    {
+      "rom": "a",
+      "ipa": "a",
+      "kana": "あ",
+      "sign": "",
+      "name": "(inherent / 固有のa)",
+      "position": "none"
+    },
+    {
+      "rom": "ā",
+      "ipa": "aː",
+      "kana": "アー",
+      "sign": "ා",
+      "name": "aela pilla",
+      "position": "right"
+    },
+    {
+      "rom": "æ",
+      "ipa": "æ",
+      "kana": "ェア",
+      "sign": "ැ",
+      "name": "æda pilla",
+      "position": "right"
+    },
+    {
+      "rom": "ǣ",
+      "ipa": "æː",
+      "kana": "ェアー",
+      "sign": "ෑ",
+      "name": "dīrgha æda pilla",
+      "position": "right"
+    },
+    {
+      "rom": "i",
+      "ipa": "i",
+      "kana": "イ",
+      "sign": "ි",
+      "name": "is pilla",
+      "position": "top"
+    },
+    {
+      "rom": "ī",
+      "ipa": "iː",
+      "kana": "イー",
+      "sign": "ී",
+      "name": "dīrgha is pilla",
+      "position": "top"
+    },
+    {
+      "rom": "u",
+      "ipa": "u",
+      "kana": "ウ",
+      "sign": "ු",
+      "name": "paa pilla",
+      "position": "bottom"
+    },
+    {
+      "rom": "ū",
+      "ipa": "uː",
+      "kana": "ウー",
+      "sign": "ූ",
+      "name": "dīrgha paa pilla",
+      "position": "bottom"
+    },
+    {
+      "rom": "e",
+      "ipa": "e",
+      "kana": "エ",
+      "sign": "ෙ",
+      "name": "kombuva",
+      "position": "left"
+    },
+    {
+      "rom": "ē",
+      "ipa": "eː",
+      "kana": "エー",
+      "sign": "ේ",
+      "name": "kombuva + 上",
+      "position": "left+top"
+    },
+    {
+      "rom": "o",
+      "ipa": "o",
+      "kana": "オ",
+      "sign": "ො",
+      "name": "kombuva + aela",
+      "position": "both"
+    },
+    {
+      "rom": "ō",
+      "ipa": "oː",
+      "kana": "オー",
+      "sign": "ෝ",
+      "name": "kombuva + aela + 上",
+      "position": "both"
+    },
+    {
+      "rom": "au",
+      "ipa": "au",
+      "kana": "アウ",
+      "sign": "ෞ",
+      "name": "kombuva + gayanukitta",
+      "position": "both",
+      "misra": true
+    }
+  ],
+  "hal": {
+    "rom": "(hal)",
+    "ipa": "∅",
+    "kana": "(子音のみ)",
+    "sign": "්",
+    "name": "hal kirīma / al-lakuna",
+    "position": "top"
+  },
+  "independent_vowels": [
+    {
+      "glyph": "අ",
+      "rom": "a",
+      "ipa": "a",
+      "kana": "あ",
+      "len": "short",
+      "pair": "ā",
+      "misra": false,
+      "mnemonic": "イスに座った人の横顔、これが母音の基本姿勢『あ』。"
+    },
+    {
+      "glyph": "ආ",
+      "rom": "ā",
+      "ipa": "aː",
+      "kana": "あー",
+      "len": "long",
+      "pair": "a",
+      "misra": false,
+      "mnemonic": "a の右に伸ばし棒(ー)を一本足して『あー』。"
+    },
+    {
+      "glyph": "ඇ",
+      "rom": "æ",
+      "ipa": "æ",
+      "kana": "ぇあ",
+      "len": "short",
+      "pair": "ǣ",
+      "misra": false,
+      "mnemonic": "a がほっぺを膨らませて変顔した『ぇあ』。"
+    },
+    {
+      "glyph": "ඈ",
+      "rom": "ǣ",
+      "ipa": "æː",
+      "kana": "ぇあー",
+      "len": "long",
+      "pair": "æ",
+      "misra": false,
+      "mnemonic": "æ にさらに伸ばし棒、長い変顔『ぇあー』。"
+    },
+    {
+      "glyph": "ඉ",
+      "rom": "i",
+      "ipa": "i",
+      "kana": "い",
+      "len": "short",
+      "pair": "ī",
+      "misra": false,
+      "mnemonic": "ちょこんと小さな『い』、つまようじみたいに細い。"
+    },
+    {
+      "glyph": "ඊ",
+      "rom": "ī",
+      "ipa": "iː",
+      "kana": "いー",
+      "len": "long",
+      "pair": "i",
+      "misra": false,
+      "mnemonic": "i に旗(はた)を一本立てて伸ばした『いー』。"
+    },
+    {
+      "glyph": "උ",
+      "rom": "u",
+      "ipa": "u",
+      "kana": "う",
+      "len": "short",
+      "pair": "ū",
+      "misra": false,
+      "mnemonic": "下にだらんと垂れた、しずくの『う』。"
+    },
+    {
+      "glyph": "ඌ",
+      "rom": "ū",
+      "ipa": "uː",
+      "kana": "うー",
+      "len": "long",
+      "pair": "u",
+      "misra": false,
+      "mnemonic": "u のしずくがもう一滴ぶら下がった『うー』。"
+    },
+    {
+      "glyph": "එ",
+      "rom": "e",
+      "ipa": "e",
+      "kana": "え",
+      "len": "short",
+      "pair": "ē",
+      "misra": false,
+      "mnemonic": "丸い顔に左から線、ほっぺをつつかれた『え』。"
+    },
+    {
+      "glyph": "ඒ",
+      "rom": "ē",
+      "ipa": "eː",
+      "kana": "えー",
+      "len": "long",
+      "pair": "e",
+      "misra": false,
+      "mnemonic": "e に伸ばし棒を足して長い『えー』。"
+    },
+    {
+      "glyph": "ඔ",
+      "rom": "o",
+      "ipa": "o",
+      "kana": "お",
+      "len": "short",
+      "pair": "ō",
+      "misra": false,
+      "mnemonic": "両手で輪を抱えた、まんまるの『お』。"
+    },
+    {
+      "glyph": "ඕ",
+      "rom": "ō",
+      "ipa": "oː",
+      "kana": "おー",
+      "len": "long",
+      "pair": "o",
+      "misra": false,
+      "mnemonic": "o に伸ばし棒、もっとまんまる『おー』。"
+    },
+    {
+      "glyph": "ඍ",
+      "rom": "ṛ",
+      "ipa": "ɾu",
+      "kana": "り",
+      "len": "short",
+      "pair": "ṝ",
+      "misra": true,
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඓ",
+      "rom": "ai",
+      "ipa": "ai",
+      "kana": "あい",
+      "len": "-",
+      "pair": "",
+      "misra": true,
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඖ",
+      "rom": "au",
+      "ipa": "au",
+      "kana": "あう",
+      "len": "-",
+      "pair": "",
+      "misra": true,
+      "mnemonic": ""
+    }
+  ],
+  "consonants": [
+    {
+      "glyph": "ක",
+      "rom": "ka",
+      "ipa": "k",
+      "kana": "か",
+      "place": "velar",
+      "manner": "voiceless",
+      "misra": false,
+      "note": "",
+      "mnemonic": "丸い頭から右にチョロっと尻尾、寝そべったオタマジャクシ。"
+    },
+    {
+      "glyph": "ඛ",
+      "rom": "kha",
+      "ipa": "kʰ",
+      "kana": "か(息)",
+      "place": "velar",
+      "manner": "voiceless_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ග",
+      "rom": "ga",
+      "ipa": "ɡ",
+      "kana": "が",
+      "place": "velar",
+      "manner": "voiced",
+      "misra": false,
+      "note": "",
+      "mnemonic": "ka のオタマジャクシが頭をパカッと開けてあくびした顔。"
+    },
+    {
+      "glyph": "ඝ",
+      "rom": "gha",
+      "ipa": "ɡʱ",
+      "kana": "が(息)",
+      "place": "velar",
+      "manner": "voiced_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඞ",
+      "rom": "ṅa",
+      "ipa": "ŋ",
+      "kana": "ん(ガ行鼻)",
+      "place": "velar",
+      "manner": "nasal",
+      "misra": true,
+      "note": "まれ",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඟ",
+      "rom": "ⁿga",
+      "ipa": "ⁿɡ",
+      "kana": "んが",
+      "place": "velar",
+      "manner": "prenasalized",
+      "misra": false,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ච",
+      "rom": "ca",
+      "ipa": "tʃ",
+      "kana": "ちゃ",
+      "place": "palatal",
+      "manner": "voiceless",
+      "misra": false,
+      "note": "",
+      "mnemonic": "左にくるん、右に持ち手、お玉(おたま)ですくう感じ。"
+    },
+    {
+      "glyph": "ඡ",
+      "rom": "cha",
+      "ipa": "tʃʰ",
+      "kana": "ちゃ(息)",
+      "place": "palatal",
+      "manner": "voiceless_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ජ",
+      "rom": "ja",
+      "ipa": "dʒ",
+      "kana": "じゃ",
+      "place": "palatal",
+      "manner": "voiced",
+      "misra": false,
+      "note": "",
+      "mnemonic": "ca のお玉の底が抜けて中身がこぼれ落ちた形。"
+    },
+    {
+      "glyph": "ඣ",
+      "rom": "jha",
+      "ipa": "dʒʱ",
+      "kana": "じゃ(息)",
+      "place": "palatal",
+      "manner": "voiced_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඤ",
+      "rom": "ña",
+      "ipa": "ɲ",
+      "kana": "にゃ",
+      "place": "palatal",
+      "manner": "nasal",
+      "misra": true,
+      "note": "まれ",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඦ",
+      "rom": "ⁿja",
+      "ipa": "ⁿdʒ",
+      "kana": "んじゃ",
+      "place": "palatal",
+      "manner": "prenasalized",
+      "misra": true,
+      "note": "まれ",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ට",
+      "rom": "ṭa",
+      "ipa": "ʈ",
+      "kana": "た(そり舌)",
+      "place": "retroflex",
+      "manner": "voiceless",
+      "misra": false,
+      "note": "",
+      "mnemonic": "上の輪っかからしっぽが下にダラリ、舌を巻いた『た』。"
+    },
+    {
+      "glyph": "ඨ",
+      "rom": "ṭha",
+      "ipa": "ʈʰ",
+      "kana": "た(そり舌息)",
+      "place": "retroflex",
+      "manner": "voiceless_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඩ",
+      "rom": "ḍa",
+      "ipa": "ɖ",
+      "kana": "だ(そり舌)",
+      "place": "retroflex",
+      "manner": "voiced",
+      "misra": false,
+      "note": "",
+      "mnemonic": "ṭa が下でくるんと一回転、巻き舌の『だ』。"
+    },
+    {
+      "glyph": "ඪ",
+      "rom": "ḍha",
+      "ipa": "ɖʱ",
+      "kana": "だ(そり舌息)",
+      "place": "retroflex",
+      "manner": "voiced_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ණ",
+      "rom": "ṇa",
+      "ipa": "ɳ",
+      "kana": "な(そり舌)",
+      "place": "retroflex",
+      "manner": "nasal",
+      "misra": false,
+      "note": "現代音はnと同じ・綴り字用",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඬ",
+      "rom": "ⁿḍa",
+      "ipa": "ⁿɖ",
+      "kana": "んだ(そり舌)",
+      "place": "retroflex",
+      "manner": "prenasalized",
+      "misra": false,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ත",
+      "rom": "ta",
+      "ipa": "t̪",
+      "kana": "た",
+      "place": "dental",
+      "manner": "voiceless",
+      "misra": false,
+      "note": "",
+      "mnemonic": "ニッコリ笑った口に、上でアホ毛がぴょん。"
+    },
+    {
+      "glyph": "ථ",
+      "rom": "tha",
+      "ipa": "t̪ʰ",
+      "kana": "た(息)",
+      "place": "dental",
+      "manner": "voiceless_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ද",
+      "rom": "da",
+      "ipa": "d̪",
+      "kana": "だ",
+      "place": "dental",
+      "manner": "voiced",
+      "misra": false,
+      "note": "",
+      "mnemonic": "ta の笑顔がもっとふくらんで二重あごになった『だ』。"
+    },
+    {
+      "glyph": "ධ",
+      "rom": "dha",
+      "ipa": "d̪ʱ",
+      "kana": "だ(息)",
+      "place": "dental",
+      "manner": "voiced_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "න",
+      "rom": "na",
+      "ipa": "n",
+      "kana": "な",
+      "place": "dental",
+      "manner": "nasal",
+      "misra": false,
+      "note": "",
+      "mnemonic": "輪っかが2つ並んで、ぷりっとしたおしり。"
+    },
+    {
+      "glyph": "ඳ",
+      "rom": "ⁿda",
+      "ipa": "ⁿd̪",
+      "kana": "んだ",
+      "place": "dental",
+      "manner": "prenasalized",
+      "misra": false,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ප",
+      "rom": "pa",
+      "ipa": "p",
+      "kana": "ぱ",
+      "place": "labial",
+      "manner": "voiceless",
+      "misra": false,
+      "note": "",
+      "mnemonic": "右側がぱっくり割れた箱、中身がぱー。"
+    },
+    {
+      "glyph": "ඵ",
+      "rom": "pha",
+      "ipa": "pʰ",
+      "kana": "ぱ(息)",
+      "place": "labial",
+      "manner": "voiceless_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "බ",
+      "rom": "ba",
+      "ipa": "b",
+      "kana": "ば",
+      "place": "labial",
+      "manner": "voiced",
+      "misra": false,
+      "note": "",
+      "mnemonic": "pa の箱に下から栓(ぼう)を一本さした『ば』。"
+    },
+    {
+      "glyph": "භ",
+      "rom": "bha",
+      "ipa": "bʱ",
+      "kana": "ば(息)",
+      "place": "labial",
+      "manner": "voiced_aspirated",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ම",
+      "rom": "ma",
+      "ipa": "m",
+      "kana": "ま",
+      "place": "labial",
+      "manner": "nasal",
+      "misra": false,
+      "note": "",
+      "mnemonic": "丸い輪の中にもう一つ点、まんまるお目目。"
+    },
+    {
+      "glyph": "ඹ",
+      "rom": "ᵐba",
+      "ipa": "ᵐb",
+      "kana": "んば",
+      "place": "labial",
+      "manner": "prenasalized",
+      "misra": false,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ය",
+      "rom": "ya",
+      "ipa": "j",
+      "kana": "や",
+      "place": "semivowel",
+      "manner": "approximant",
+      "misra": false,
+      "note": "",
+      "mnemonic": "左右に手を広げて『やぁ!』と挨拶する人。"
+    },
+    {
+      "glyph": "ර",
+      "rom": "ra",
+      "ipa": "r",
+      "kana": "ら",
+      "place": "liquid",
+      "manner": "approximant",
+      "misra": false,
+      "note": "",
+      "mnemonic": "短いしっぽがピンと立った、しっぽだけのオタマ。"
+    },
+    {
+      "glyph": "ල",
+      "rom": "la",
+      "ipa": "l",
+      "kana": "ら(l)",
+      "place": "liquid",
+      "manner": "approximant",
+      "misra": false,
+      "note": "",
+      "mnemonic": "右上にループ、リボン結びの『ら』。"
+    },
+    {
+      "glyph": "ව",
+      "rom": "va",
+      "ipa": "ʋ",
+      "kana": "ゔぁ/わ",
+      "place": "semivowel",
+      "manner": "approximant",
+      "misra": false,
+      "note": "",
+      "mnemonic": "丸い壺(わ)、上がぱっくり開いている。"
+    },
+    {
+      "glyph": "ශ",
+      "rom": "śa",
+      "ipa": "ʃ",
+      "kana": "しゃ",
+      "place": "sibilant",
+      "manner": "fricative",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ෂ",
+      "rom": "ṣa",
+      "ipa": "ʂ",
+      "kana": "しゃ(そり舌)",
+      "place": "sibilant",
+      "manner": "fricative",
+      "misra": true,
+      "note": "",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ස",
+      "rom": "sa",
+      "ipa": "s",
+      "kana": "さ",
+      "place": "sibilant",
+      "manner": "fricative",
+      "misra": false,
+      "note": "",
+      "mnemonic": "S字にうねった、にょろにょろヘビの『さ』。"
+    },
+    {
+      "glyph": "හ",
+      "rom": "ha",
+      "ipa": "h",
+      "kana": "は",
+      "place": "glottal",
+      "manner": "fricative",
+      "misra": false,
+      "note": "",
+      "mnemonic": "左に輪、右に脚、片足立ちでバランス『は』。"
+    },
+    {
+      "glyph": "ළ",
+      "rom": "ḷa",
+      "ipa": "ɭ",
+      "kana": "ら(そり舌l)",
+      "place": "liquid",
+      "manner": "approximant",
+      "misra": false,
+      "note": "現代音はlと同じ・綴り字用",
+      "mnemonic": "la の仲間だが下に巻き舌のしっぽが追加、そり舌の『ら』。"
+    },
+    {
+      "glyph": "ෆ",
+      "rom": "fa",
+      "ipa": "f",
+      "kana": "ふぁ",
+      "place": "labial",
+      "manner": "fricative",
+      "misra": true,
+      "note": "外来語用",
+      "mnemonic": ""
+    }
+  ],
+  "irregular_forms": [
+    {
+      "syllable": "රු",
+      "base": "ර",
+      "sign": "u",
+      "note": "独自グリフ。ぶら下げ形でない。最重要の例外"
+    },
+    {
+      "syllable": "රූ",
+      "base": "ර",
+      "sign": "ū",
+      "note": "独自グリフ"
+    },
+    {
+      "syllable": "තු",
+      "base": "ත",
+      "sign": "u",
+      "note": "連結形(touching)。uが子音にめり込む"
+    },
+    {
+      "syllable": "තූ",
+      "base": "ත",
+      "sign": "ū",
+      "note": "連結形"
+    },
+    {
+      "syllable": "ලු",
+      "base": "ල",
+      "sign": "u",
+      "note": "フォントにより連結形"
+    },
+    {
+      "syllable": "ළු",
+      "base": "ළ",
+      "sign": "u",
+      "note": "連結形"
+    },
+    {
+      "syllable": "කු",
+      "base": "ක",
+      "sign": "u",
+      "note": "uが子音下部に密着(フォント差あり)"
+    },
+    {
+      "syllable": "ගු",
+      "base": "ග",
+      "sign": "u",
+      "note": "同上"
+    }
+  ],
+  "conjuncts": [
+    {
+      "name": "yansaya",
+      "form": "්‍ය",
+      "example": "ක්‍ය",
+      "note": "-ya 結合 (例: ක්‍ය kya)"
+    },
+    {
+      "name": "rakaransaya",
+      "form": "්‍ර",
+      "example": "ක්‍ර",
+      "note": "-ra 結合 (例: ක්‍ර kra)"
+    },
+    {
+      "name": "repaya",
+      "form": "ර්‍",
+      "example": "ර්‍ක",
+      "note": "先行する r"
+    }
+  ],
+  "parts_coloring": {
+    "description": "音節を base(子音) と vowel_sign(母音記号) と hal に分解して色分けする",
+    "roles": [
+      {
+        "role": "consonant_base",
+        "desc": "子音字そのもの",
+        "suggest_color": "#2b6cb0"
+      },
+      {
+        "role": "vowel_sign",
+        "desc": "母音記号 pilla(左右上下)",
+        "suggest_color": "#dd6b20"
+      },
+      {
+        "role": "hal",
+        "desc": "母音消去記号 ්",
+        "suggest_color": "#718096"
+      },
+      {
+        "role": "conjunct",
+        "desc": "連結記号 (yansaya等)",
+        "suggest_color": "#805ad5"
+      }
+    ],
+    "note": "Unicodeでは base + combining sign の順。描画エンジンが合字するため、色分けは文字単位ではなくグラフェムクラスタ内のコードポイント単位で span 分割する。oやōは left+right の2コードポイントに分かれる点に注意。"
+  },
+  "fonts": {
+    "google_fonts": [
+      {
+        "family": "Noto Sans Sinhala",
+        "style": "sans",
+        "url": "https://fonts.google.com/specimen/Noto+Sans+Sinhala",
+        "note": "標準・最も中立的なグリフ"
+      },
+      {
+        "family": "Noto Serif Sinhala",
+        "style": "serif",
+        "url": "https://fonts.google.com/specimen/Noto+Serif+Sinhala",
+        "note": "セリフ系で字形差が分かりやすい"
+      },
+      {
+        "family": "Abhaya Libre",
+        "style": "serif",
+        "url": "https://fonts.google.com/specimen/Abhaya+Libre",
+        "note": "伝統的な書籍体に近い"
+      },
+      {
+        "family": "Yaldevi",
+        "style": "sans",
+        "url": "https://fonts.google.com/specimen/Yaldevi",
+        "note": "モダン・幾何学的"
+      },
+      {
+        "family": "Gemunu Libre",
+        "style": "sans",
+        "url": "https://fonts.google.com/specimen/Gemunu+Libre",
+        "note": "細字〜太字。低コントラスト"
+      }
+    ],
+    "compare_tip": "同じ音節(特に රු/තු/කු などの連結形)を複数フォントで並べると、合字の有無やぶら下げ形の差が観察できる"
+  },
+  "quiz": {
+    "answer_fields": [
+      "rom",
+      "ipa",
+      "kana"
+    ],
+    "modes": [
+      {
+        "id": "glyph_to_rom",
+        "prompt": "この文字の読みは？",
+        "show": "glyph",
+        "answer": "rom",
+        "choices_from": "rom"
+      },
+      {
+        "id": "glyph_to_kana",
+        "prompt": "この文字の音に近いかなは？",
+        "show": "glyph",
+        "answer": "kana",
+        "choices_from": "kana"
+      },
+      {
+        "id": "glyph_to_ipa",
+        "prompt": "この文字の発音記号は？",
+        "show": "glyph",
+        "answer": "ipa",
+        "choices_from": "ipa"
+      },
+      {
+        "id": "rom_to_glyph",
+        "prompt": "この読みの文字は？",
+        "show": "rom",
+        "answer": "glyph",
+        "choices_from": "glyph"
+      }
+    ],
+    "pools": [
+      "consonant_pure",
+      "consonant_all",
+      "independent_vowels",
+      "vowel_signs"
+    ],
+    "choice_count": 4,
+    "distractor_strategy": "同じ pool 内からランダム抽出。近縁(同じ place や同じ pillaの長短)を優先して出すと難度UP"
+  },
+  "display_modes": [
+    {
+      "id": "matrix_pure",
+      "label": "子音マトリクス(純粋のみ)",
+      "filter": "consonant where misra=false",
+      "layout": "place_x_manner"
+    },
+    {
+      "id": "matrix_all",
+      "label": "子音マトリクス(全部/有気音含む)",
+      "filter": "consonant all",
+      "layout": "place_x_manner"
+    },
+    {
+      "id": "ind_vowels",
+      "label": "独立母音(語頭用)",
+      "filter": "independent_vowels",
+      "layout": "short_long_pairs"
+    },
+    {
+      "id": "vowel_signs",
+      "label": "母音記号 pilla",
+      "filter": "vowel_signs",
+      "layout": "single_row_on_ka"
+    },
+    {
+      "id": "syllable_grid",
+      "label": "合成表(子音×母音)",
+      "filter": "consonant_pure x vowel_signs",
+      "layout": "grid"
+    },
+    {
+      "id": "irregular",
+      "label": "例外字形(連結形)",
+      "filter": "irregular",
+      "layout": "list"
+    }
+  ]
+}
