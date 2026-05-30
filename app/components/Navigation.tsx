@@ -21,6 +21,9 @@ export function Navigation() {
             <NavLink to="/" className={linkClass} end>
               ホーム
             </NavLink>
+            <NavLink to="/lesson" className={linkClass}>
+              レッスン
+            </NavLink>
             <NavLink to="/table" className={linkClass}>
               表
             </NavLink>

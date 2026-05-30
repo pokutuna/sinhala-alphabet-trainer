@@ -29,11 +29,16 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card
+          to="/lesson"
+          title="1文字ずつ学ぶ"
+          desc="母音・子音を順番に。パーツ分けの説明と覚え方つきで、前へ/次へめくって学習。"
+        />
         <Card
           to="/table"
           title="文字表で見る"
-          desc="調音点×調音法のマトリクスや母音記号を一覧。タップで大きな表示・覚え方・フォント比較。"
+          desc="合成表(子音×母音)や母音記号を一覧。タップで大きな表示・覚え方・フォント比較。"
         />
         <Card
           to="/quiz"
