@@ -5,4 +5,5 @@ export default [
   route("lesson", "routes/lesson.tsx"),
   route("table", "routes/table.tsx"),
   route("quiz", "routes/quiz.tsx"),
+  route("convert", "routes/convert.tsx"),
 ] satisfies RouteConfig;

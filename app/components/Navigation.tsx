@@ -30,6 +30,9 @@ export function Navigation() {
             <NavLink to="/quiz" className={linkClass}>
               クイズ
             </NavLink>
+            <NavLink to="/convert" className={linkClass}>
+              変換
+            </NavLink>
           </div>
         </div>
       </div>

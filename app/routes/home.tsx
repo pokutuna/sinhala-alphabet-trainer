@@ -29,7 +29,7 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card
           to="/lesson"
           title="1文字ずつ学ぶ"
@@ -44,6 +44,11 @@ export default function Home() {
           to="/quiz"
           title="クイズで覚える"
           desc="文字↔読み(かな/ローマ字/IPA)を4択で。難易度を選んで累積的に練習。"
+        />
+        <Card
+          to="/convert"
+          title="かな↔文字を変換"
+          desc="かな・ローマ字とシンハラ文字を相互変換。読み付きで表示、複数候補は押して切り替え。"
         />
       </div>
 
