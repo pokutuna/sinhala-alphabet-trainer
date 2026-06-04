@@ -233,6 +233,11 @@ export type Segment =
       kind: "error";
       /** Verbatim source that could not be converted. */
       source: string;
+    }
+  | {
+      kind: "space";
+      /** The original whitespace, preserved for copy / round-tripping. */
+      source: string;
     };
 
 const SMALL_TO_LARGE: Record<string, string> = {
@@ -338,7 +343,13 @@ type MoraToken =
   | { t: "nasal"; src: string; kana: string }
   | { t: "long"; src: string } // 長音: lengthens the previous token
   | { t: "sokuon"; src: string } // 促音: not renderable → error
+  | { t: "space"; src: string } // whitespace: kept as a gap, not an error
   | { t: "error"; src: string };
+
+/** Whitespace we keep as a spacer rather than flagging as unconvertible. */
+function isSpace(ch: string): boolean {
+  return ch === " " || ch === "　" || ch === "\t";
+}
 
 const YANSAYA = "්‍ය"; // yansaya conjunct (-ya), ් + ZWJ + ය
 
@@ -359,6 +370,11 @@ function tokenizeKana(input: string): MoraToken[] {
   while (i < chars.length) {
     const raw = chars[i];
 
+    if (isSpace(raw)) {
+      tokens.push({ t: "space", src: raw });
+      i++;
+      continue;
+    }
     if (!isKana(raw)) {
       tokens.push({ t: "error", src: raw });
       i++;
@@ -474,11 +490,21 @@ function tokensToSegments(tokens: MoraToken[]): Segment[] {
   // lengthening never chains (とうう stays とう + う).
   let prevVk: VowelKey | null = null;
 
+  const pushSpace = (s: string) => {
+    const last = segments[segments.length - 1];
+    if (last && last.kind === "space") last.source += s;
+    else segments.push({ kind: "space", source: s });
+  };
+
   for (let idx = 0; idx < tokens.length; idx++) {
     const tok = tokens[idx];
     switch (tok.t) {
       case "error":
         pushError(tok.src);
+        prevVk = null;
+        break;
+      case "space":
+        pushSpace(tok.src);
         prevVk = null;
         break;
       case "sokuon": {
@@ -686,6 +712,11 @@ function tokenizeJapanese(input: string): MoraToken[] {
       ch === LONG_SENTINEL
     ) {
       tokens.push({ t: "long", src: ch === LONG_SENTINEL ? "" : ch });
+      i++;
+      continue;
+    }
+    if (isSpace(ch)) {
+      tokens.push({ t: "space", src: input[i] ?? ch });
       i++;
       continue;
     }
@@ -1039,7 +1070,8 @@ export type ReadSegment =
       kana: string;
       ipa: string;
     }
-  | { kind: "error"; source: string };
+  | { kind: "error"; source: string }
+  | { kind: "space"; source: string };
 
 /** Combining marks that attach to the preceding base (signs, virama, anusvara). */
 function isCombining(ch: string): boolean {
@@ -1071,10 +1103,20 @@ export function sinhalaToReading(input: string): ReadSegment[] {
     if (last && last.kind === "error") last.source += s;
     else out.push({ kind: "error", source: s });
   };
+  const pushSpace = (s: string) => {
+    const last = out[out.length - 1];
+    if (last && last.kind === "space") last.source += s;
+    else out.push({ kind: "space", source: s });
+  };
 
   while (i < chars.length) {
     const ch = chars[i];
 
+    if (isSpace(ch)) {
+      pushSpace(ch);
+      i++;
+      continue;
+    }
     if (!isSinhala(ch)) {
       pushError(ch);
       i++;

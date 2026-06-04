@@ -146,9 +146,10 @@ function ToSinhala({ input }: { input: string }) {
           <OutputLine key={lineKey}>
             {withKeys(segs).map(({ seg, key, i }) => {
               const at = `${li}:${i}`;
-              return seg.kind === "error" ? (
-                <ErrorChip key={key} text={seg.source} />
-              ) : (
+              if (seg.kind === "space") return <SpaceChip key={key} />;
+              if (seg.kind === "error")
+                return <ErrorChip key={key} text={seg.source} />;
+              return (
                 <MappedChip
                   key={key}
                   segment={seg}
@@ -319,13 +320,12 @@ function FromSinhala({ input }: { input: string }) {
       <div className="space-y-2">
         {withLineKeys(lines).map(({ segs, key: lineKey }) => (
           <OutputLine key={lineKey}>
-            {withKeys(segs).map(({ seg, key }) =>
-              seg.kind === "error" ? (
-                <ErrorChip key={key} text={seg.source} />
-              ) : (
-                <ReadChip key={key} segment={seg} />
-              ),
-            )}
+            {withKeys(segs).map(({ seg, key }) => {
+              if (seg.kind === "space") return <SpaceChip key={key} />;
+              if (seg.kind === "error")
+                return <ErrorChip key={key} text={seg.source} />;
+              return <ReadChip key={key} segment={seg} />;
+            })}
           </OutputLine>
         ))}
       </div>
@@ -378,6 +378,11 @@ function ErrorChip({ text }: { text: string }) {
       <span className="mt-0.5 text-[9px] leading-none">変換不可</span>
     </span>
   );
+}
+
+function SpaceChip() {
+  // 空白はエラーにせず、出力に小さな間隔として表示する
+  return <span className="w-3 shrink-0" aria-hidden="true" />;
 }
 
 function EmptyHint({ text }: { text: string }) {
