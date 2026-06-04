@@ -534,11 +534,12 @@ function tokensToSegments(tokens: MoraToken[]): Segment[] {
 }
 
 /**
- * Convert Japanese (kana) text to segments. Non-kana runs become verbatim
- * error segments so they can be shown and flagged in the UI.
+ * Convert Japanese text to segments. Accepts kana, romaji, or a mix of the two
+ * (the tokenizer auto-detects per run), so callers don't pick an input mode.
+ * Unknown characters become verbatim error segments for the UI to flag.
  */
 export function japaneseToSinhala(input: string): Segment[] {
-  return tokensToSegments(tokenizeKana(input));
+  return tokensToSegments(tokenizeJapanese(input));
 }
 
 // ---------------------------------------------------------------------------
@@ -645,12 +646,6 @@ const ROMAJI_KEYS = Object.keys(ROMAJI_TO_KANA).sort(
 
 const isLatinLetter = (ch: string) => /[a-z]/i.test(ch);
 
-/**
- * Tokenize a lowercase romaji string into the same mora tokens as kana, by
- * greedily matching the longest known syllable. Handles double-consonant
- * sokuon (kk→っ), trailing/standalone n→ん, macrons/doubled vowels and "-"/"~"
- * as long marks, and leaves unknown runs as errors.
- */
 const MACRON_VOWEL: Record<string, string> = {
   ā: "a",
   ī: "i",
@@ -662,7 +657,14 @@ const MACRON_VOWEL: Record<string, string> = {
  *  preceding consonant: tōkyō → t,o,LONG,k,y,o,LONG → と + 長 + きょ + 長. */
 const LONG_SENTINEL = "\u0001";
 
-function tokenizeRomaji(input: string): MoraToken[] {
+/**
+ * Tokenize Japanese text into mora tokens. Handles romaji (greedy longest
+ * syllable match, double-consonant sokuon kk→っ, trailing/standalone n→ん,
+ * macrons and "-"/"~" as long marks) and hands any run of kana to
+ * tokenizeKana, so kana, romaji, and mixed input all work. Unknown runs become
+ * errors.
+ */
+function tokenizeJapanese(input: string): MoraToken[] {
   // Expand macron vowels to plain vowel + a long sentinel so a consonant before
   // the macron (tō) still forms its syllable before the long mark applies.
   const lower = Array.from(input.toLowerCase())
@@ -685,6 +687,15 @@ function tokenizeRomaji(input: string): MoraToken[] {
     ) {
       tokens.push({ t: "long", src: ch === LONG_SENTINEL ? "" : ch });
       i++;
+      continue;
+    }
+    // A run of kana (or kana-adjacent marks) — hand it to the kana tokenizer so
+    // mixed かな/ローマ字 input (e.g. "ありgatou") just works.
+    if (isKana(ch)) {
+      let j = i;
+      while (j < chars.length && isKana(chars[j])) j++;
+      tokens.push(...tokenizeKana(chars.slice(i, j).join("")));
+      i = j;
       continue;
     }
     if (!isLatinLetter(ch)) {
@@ -740,14 +751,6 @@ function tokenizeRomaji(input: string): MoraToken[] {
   }
 
   return tokens;
-}
-
-/**
- * Convert romaji (Hepburn-ish) text to segments, reusing the kana onsets and
- * candidate logic. Unknown letters/symbols become verbatim error segments.
- */
-export function romajiToSinhala(input: string): Segment[] {
-  return tokensToSegments(tokenizeRomaji(input));
 }
 
 const ANUSVARA = "ං"; // anusvara ං = /ŋ/

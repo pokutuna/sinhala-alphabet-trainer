@@ -4,7 +4,6 @@ import {
   type Candidate,
   japaneseToSinhala,
   type ReadSegment,
-  romajiToSinhala,
   type Segment,
   sinhalaToReading,
 } from "~/lib/transliterate";
@@ -22,16 +21,14 @@ export function meta(_: Route.MetaArgs) {
 }
 
 type Direction = "to_sinhala" | "from_sinhala";
-type InputKind = "kana" | "romaji";
 
-const SAMPLES: Record<Direction, Record<string, string>> = {
-  to_sinhala: { kana: "ありがとう", romaji: "arigatou" },
-  from_sinhala: { kana: "ආයුබෝවන්", romaji: "ආයුබෝවන්" },
+const SAMPLES: Record<Direction, string> = {
+  to_sinhala: "ありがとう",
+  from_sinhala: "ආයුබෝවන්",
 };
 
 export default function ConvertPage() {
   const [direction, setDirection] = useState<Direction>("to_sinhala");
-  const [inputKind, setInputKind] = useState<InputKind>("kana");
   const [input, setInput] = useState("");
 
   const toSinhala = direction === "to_sinhala";
@@ -42,7 +39,7 @@ export default function ConvertPage() {
         コンバーター
       </h1>
       <p className="mb-5 text-sm text-gray-500">
-        音ベースの近似変換です。公式の対応表は無いため、複数候補がある音は文字を押して切り替えられます。
+        音ベースの近似変換です。かな・ローマ字はどちらでも(混在も)OK。公式の対応表は無いため、複数候補がある音は文字を押して切り替えられます。
       </p>
 
       {/* direction toggle */}
@@ -63,42 +60,17 @@ export default function ConvertPage() {
         </button>
       </div>
 
-      {/* input-kind toggle (only meaningful for → Sinhala) */}
-      {toSinhala && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-gray-500">入力方式:</span>
-          <button
-            type="button"
-            onClick={() => setInputKind("kana")}
-            className={miniPill(inputKind === "kana")}
-          >
-            かな
-          </button>
-          <button
-            type="button"
-            onClick={() => setInputKind("romaji")}
-            className={miniPill(inputKind === "romaji")}
-          >
-            ローマ字
-          </button>
-        </div>
-      )}
-
       {/* input */}
       <div className="mb-2 flex items-center justify-between">
         <label
           htmlFor="convert-input"
           className="text-sm font-semibold text-gray-500"
         >
-          {!toSinhala
-            ? "シンハラ文字を入力"
-            : inputKind === "kana"
-              ? "ひらがな・カタカナを入力"
-              : "ローマ字を入力 (例: konnichiwa)"}
+          {toSinhala ? "かな・ローマ字を入力" : "シンハラ文字を入力"}
         </label>
         <button
           type="button"
-          onClick={() => setInput(SAMPLES[direction][inputKind] ?? "")}
+          onClick={() => setInput(SAMPLES[direction])}
           className="text-xs text-blue-600 hover:underline dark:text-blue-400"
         >
           例を入れる
@@ -109,13 +81,7 @@ export default function ConvertPage() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         rows={3}
-        placeholder={
-          !toSinhala
-            ? "例: ආයුබෝවන්"
-            : inputKind === "kana"
-              ? "例: ありがとう"
-              : "例: arigatou"
-        }
+        placeholder={toSinhala ? "例: ありがとう / arigatou" : "例: ආයුබෝවන්"}
         className="mb-6 w-full resize-y rounded-xl border border-gray-300 bg-white p-3 text-lg text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
         // Sinhala input should render with the Sinhala font.
         style={
@@ -125,31 +91,20 @@ export default function ConvertPage() {
         }
       />
 
-      {toSinhala ? (
-        <ToSinhala input={input} inputKind={inputKind} />
-      ) : (
-        <FromSinhala input={input} />
-      )}
+      {toSinhala ? <ToSinhala input={input} /> : <FromSinhala input={input} />}
     </main>
   );
 }
 
 // ---------------------------------------------------------------------------
-// → Sinhala (kana or romaji)
+// → Sinhala (kana / romaji / mixed — auto-detected by the tokenizer)
 // ---------------------------------------------------------------------------
 
-function ToSinhala({
-  input,
-  inputKind,
-}: {
-  input: string;
-  inputKind: InputKind;
-}) {
+function ToSinhala({ input }: { input: string }) {
   // Convert line by line so input newlines are preserved in the output.
-  const convert = inputKind === "kana" ? japaneseToSinhala : romajiToSinhala;
   const lines = useMemo(
-    () => input.split("\n").map((line) => convert(line)),
-    [input, convert],
+    () => input.split("\n").map((line) => japaneseToSinhala(line)),
+    [input],
   );
 
   // Picks are keyed by an input signature so editing drops stale selections.
@@ -480,12 +435,6 @@ function pill(active: boolean): string {
   return active
     ? "rounded-full bg-blue-600 px-4 py-1.5 text-sm font-medium text-white"
     : "rounded-full bg-gray-100 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200";
-}
-
-function miniPill(active: boolean): string {
-  return active
-    ? "rounded-full bg-gray-800 px-3 py-1 text-xs font-medium text-white dark:bg-gray-200 dark:text-gray-900"
-    : "rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300";
 }
 
 /**
