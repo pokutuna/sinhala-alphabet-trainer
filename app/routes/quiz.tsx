@@ -159,7 +159,7 @@ function QuizRunner({
 
   const next = () => {
     setPicked(null);
-    setQuestion(generateQuestion(pool, config));
+    setQuestion(generateQuestion(pool, config, Math.random, question.char.id));
   };
 
   return (

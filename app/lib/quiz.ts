@@ -50,11 +50,13 @@ function pick<T>(arr: T[], rng: Rng): T {
  * Distractors are drawn first from confusion-group members within the pool,
  * then fall back to other pool members. Choices never duplicate the answer
  * label, so options stay unambiguous.
+ * Pass excludeId to prevent a specific character from being selected as the target.
  */
 export function generateQuestion(
   pool: SinhalaChar[],
   config: QuizConfig,
   rng: Rng = Math.random,
+  excludeId?: string,
 ): Question {
   const answerable = pool.filter(
     (c) => fieldValue(c, config.answerField) !== "",
@@ -62,7 +64,11 @@ export function generateQuestion(
   const promptable = answerable.filter(
     (c) => fieldValue(c, config.promptField) !== "",
   );
-  const target = pick(promptable.length ? promptable : answerable, rng);
+  const targetPool = promptable.length ? promptable : answerable;
+  const filteredPool = excludeId
+    ? targetPool.filter((c) => c.id !== excludeId)
+    : targetPool;
+  const target = pick(filteredPool.length ? filteredPool : targetPool, rng);
 
   const answerLabel = fieldValue(target, config.answerField);
 
