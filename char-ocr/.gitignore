@@ -1,0 +1,24 @@
+# データ実体は追跡しない。再取得は char-ocr/data/download.sh で行う。
+/data/*
+!/data/download.sh
+
+# ダウンロード時の一時 zip
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.python-version
+
+# 学習成果物 (モデル・チェックポイント・ログ)
+*.onnx
+*.pt
+*.pth
+*.ckpt
+runs/
+checkpoints/
+wandb/
+
+# Jupyter
+.ipynb_checkpoints/
