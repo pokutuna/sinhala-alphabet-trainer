@@ -1,6 +1,23 @@
+tmp/
+
 # データ実体は追跡しない。再取得は char-ocr/data/download.sh で行う。
 /data/*
 !/data/download.sh
+# label 定義はソース扱いで追跡する(画像実体ではない)
+!/data/labels/
+/data/labels/*
+!/data/labels/handwritten_constants.py
+# コーパスの正解テキスト(CSV/si)はソース扱いで追跡する(画像実体は除外)
+!/data/corpus/
+/data/corpus/*
+!/data/corpus/sinocr/
+/data/corpus/sinocr/*
+!/data/corpus/sinocr/train/
+!/data/corpus/sinocr/test/
+/data/corpus/sinocr/train/*
+/data/corpus/sinocr/test/*
+!/data/corpus/sinocr/train/data.csv
+!/data/corpus/sinocr/test/data.csv
 
 # ダウンロード時の一時 zip
 *.zip
