@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router";
 import { CharCell } from "~/components/CharCell";
 import { CharFocus } from "~/components/CharFocus";
@@ -180,6 +181,15 @@ export default function TablePage() {
   const selectedId = params.get("char");
   const selected = selectedId ? getCharById(selectedId) : undefined;
 
+  // The last cell the user opened, kept after the modal closes so the table
+  // still shows where they were. Lives in component state (not the URL): it
+  // survives close-modal but is intentionally cleared on page reload / mode
+  // switch, so it doesn't clutter the URL or persist across visits.
+  const [lastSelected, setLastSelected] = useState<string | null>(null);
+  // While the modal is open, highlight that cell; after it closes, fall back to
+  // the remembered last selection.
+  const highlightedId = selectedId ?? lastSelected;
+
   // All toolbar toggles below live in a sticky top bar while the table scrolls
   // underneath, so they pass preventScrollReset to keep the table's scroll
   // position instead of jumping to the top on every toggle.
@@ -187,6 +197,8 @@ export default function TablePage() {
     const next = new URLSearchParams(params);
     next.set("mode", m);
     next.delete("char");
+    // a remembered cell belongs to the previous mode's table; drop it.
+    setLastSelected(null);
     setParams(next, { preventScrollReset: true });
   };
 
@@ -234,6 +246,7 @@ export default function TablePage() {
   // top of the table, so keep the table's scroll position (preventScrollReset)
   // instead of letting the navigation jump back to the top.
   const select = (id: string) => {
+    setLastSelected(id);
     const next = new URLSearchParams(params);
     next.set("char", id);
     setParams(next, { preventScrollReset: true });
@@ -483,19 +496,34 @@ export default function TablePage() {
         )}
       </div>
 
-      {mode === "hodiya" && <HodiyaList misra={showMisra} onSelect={select} />}
+      {mode === "hodiya" && (
+        <HodiyaList
+          misra={showMisra}
+          onSelect={select}
+          selectedId={highlightedId}
+        />
+      )}
       {mode === "matrix" && (
-        <ConsonantMatrixTable sign={matrixSign} onSelect={select} />
+        <ConsonantMatrixTable
+          sign={matrixSign}
+          onSelect={select}
+          selectedId={highlightedId}
+        />
       )}
       {mode === "chart" && (
         <SyllableGrid
           showLong={showLong}
           bands={chartBands}
           onSelect={select}
+          selectedId={highlightedId}
         />
       )}
       {mode === "signs" && (
-        <SignTable consonant={signConsonant} onSelect={select} />
+        <SignTable
+          consonant={signConsonant}
+          onSelect={select}
+          selectedId={highlightedId}
+        />
       )}
 
       <p className="mt-6 text-sm text-gray-500">
@@ -508,20 +536,30 @@ export default function TablePage() {
   );
 }
 
+// Subtle, persistent highlight for "the cell you last opened". Two flavors:
+//  - INSET: for dense grid cells that have no border of their own (chart /
+//    matrix). A ring drawn inside the cell so it doesn't shift layout.
+//  - BORDER tweak handled inline where the cell already has a border.
+const SELECTED_INSET =
+  "bg-blue-50 ring-1 ring-inset ring-blue-400/60 dark:bg-blue-950/40";
+
 /** A CharCell with an unobtrusive miśra dot below it (same look otherwise). */
 function MisraCell({
   char,
   misra,
   onSelect,
+  selected,
 }: {
   char: Parameters<typeof CharCell>[0]["char"];
   misra: boolean;
   onSelect: (id: string) => void;
+  selected?: boolean;
 }) {
-  if (!misra) return <CharCell char={char} onSelect={onSelect} />;
+  if (!misra)
+    return <CharCell char={char} onSelect={onSelect} selected={selected} />;
   return (
     <div className="relative">
-      <CharCell char={char} onSelect={onSelect} />
+      <CharCell char={char} onSelect={onSelect} selected={selected} />
       <span className="pointer-events-none absolute inset-x-0 bottom-1 flex justify-center">
         <MisraDot />
       </span>
@@ -551,22 +589,29 @@ function SignSyllableButton({
   consonant,
   sign,
   onSelect,
+  selectedId,
 }: {
   consonant: Consonant;
   sign: (typeof vowelSigns)[number];
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   const syl = composeSyllable(consonant, sign);
   // Two-part signs (o ō au) split to both sides of the consonant; rendering
   // them on a lone dotted circle breaks, so show the position word only.
   const part =
     sign.sign && sign.position !== "both" ? DOTTED_CIRCLE + sign.sign : null;
+  const selected = syl.id === selectedId;
   return (
     <button
       type="button"
       onClick={() => onSelect(syl.id)}
       title={`${syl.rom}（${sign.name}）の詳細`}
-      className="flex min-w-[3.5rem] flex-col items-center gap-0.5 rounded-lg border border-gray-200 bg-white px-2 py-1.5 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+      className={`flex min-w-[3.5rem] flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+        selected
+          ? "border-blue-400 bg-blue-50 ring-1 ring-blue-400/60 dark:border-blue-500 dark:bg-blue-950/40"
+          : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      }`}
     >
       <Glyph
         text={syl.glyph}
@@ -595,9 +640,11 @@ function SignSyllableButton({
 function SignTable({
   consonant,
   onSelect,
+  selectedId,
 }: {
   consonant: Consonant;
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   const byPos = (pos: string) => vowelSigns.filter((s) => s.position === pos);
   const zone = (pos: string, className = "") => (
@@ -610,6 +657,7 @@ function SignTable({
           consonant={consonant}
           sign={s}
           onSelect={onSelect}
+          selectedId={selectedId}
         />
       ))}
     </div>
@@ -617,6 +665,7 @@ function SignTable({
   // the inherent-"a" syllable, used for the clickable center letter.
   const aSign = vowelSigns.find((s) => s.position === "none");
   const aSyl = aSign ? composeSyllable(consonant, aSign) : null;
+  const centerSelected = aSyl?.id === selectedId;
 
   return (
     <div>
@@ -643,7 +692,11 @@ function SignTable({
             type="button"
             onClick={() => aSyl && onSelect(aSyl.id)}
             title={`${consonant.rom}（${consonant.kana}）の詳細`}
-            className="flex flex-col items-center rounded-xl border-2 border-gray-300 bg-white px-5 py-3 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+            className={`flex flex-col items-center rounded-xl border-2 px-5 py-3 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 ${
+              centerSelected
+                ? "border-blue-400 bg-blue-50 ring-1 ring-blue-400/60 dark:border-blue-500 dark:bg-blue-950/40"
+                : "border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
+            }`}
           >
             <Glyph
               text={consonant.glyph}
@@ -666,10 +719,12 @@ function SyllableGrid({
   showLong,
   bands,
   onSelect,
+  selectedId,
 }: {
   showLong: boolean;
   bands: ChartBands;
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   // 6 fixed columns (a/æ/i/u/e/o slots). The chart never widens for long
   // vowels; instead the long member shows as an extra row.
@@ -731,6 +786,7 @@ function SyllableGrid({
             vowel={slot.shortVowel}
             onSelect={onSelect}
             tone={shortTone}
+            selectedId={selectedId}
           />
         ))}
         {showLong &&
@@ -740,6 +796,7 @@ function SyllableGrid({
               vowel={slot.longVowel}
               onSelect={onSelect}
               tone={longTone}
+              selectedId={selectedId}
             />
           ))}
 
@@ -757,7 +814,9 @@ function SyllableGrid({
                 type="button"
                 onClick={() => onSelect(c.id)}
                 style={showLong ? { gridRow: "span 2" } : undefined}
-                className={`sticky left-0 z-10 flex flex-col items-center justify-center border-r border-b border-gray-200 px-0.5 py-1 hover:brightness-95 dark:border-gray-700 ${rowHeaderTint}`}
+                className={`sticky left-0 z-10 flex flex-col items-center justify-center border-r border-b border-gray-200 px-0.5 py-1 hover:brightness-95 dark:border-gray-700 ${
+                  c.id === selectedId ? SELECTED_INSET : rowHeaderTint
+                }`}
                 title={`${c.rom} (${c.kana}) の詳細`}
               >
                 <Glyph
@@ -779,6 +838,7 @@ function SyllableGrid({
                   sign={slot.shortSign}
                   onSelect={onSelect}
                   tone={shortTone}
+                  selectedId={selectedId}
                 />
               ))}
               {/* long row */}
@@ -791,6 +851,7 @@ function SyllableGrid({
                       sign={slot.longSign}
                       onSelect={onSelect}
                       tone={longTone}
+                      selectedId={selectedId}
                     />
                   ) : (
                     <div
@@ -813,10 +874,12 @@ function VowelGlyphCell({
   vowel,
   onSelect,
   tone,
+  selectedId,
 }: {
   vowel?: Vowel;
   onSelect: (id: string) => void;
   tone?: string;
+  selectedId?: string | null;
 }) {
   if (!vowel) {
     return (
@@ -825,12 +888,15 @@ function VowelGlyphCell({
       />
     );
   }
+  const selected = vowel.id === selectedId;
   return (
     <button
       type="button"
       onClick={() => onSelect(vowel.id)}
       title={`${vowel.rom} (独立母音)`}
-      className={`border-b border-gray-200 py-1 hover:brightness-95 dark:border-gray-700 ${tone ?? ""}`}
+      className={`border-b border-gray-200 py-1 hover:brightness-95 dark:border-gray-700 ${
+        selected ? SELECTED_INSET : (tone ?? "")
+      }`}
     >
       <Glyph
         text={vowel.glyph}
@@ -848,19 +914,24 @@ function SyllableCell({
   sign,
   onSelect,
   tone,
+  selectedId,
 }: {
   consonant: Consonant;
   sign: VowelSlot["shortSign"];
   onSelect: (id: string) => void;
   tone?: string;
+  selectedId?: string | null;
 }) {
   const syl = composeSyllable(consonant, sign);
+  const selected = syl.id === selectedId;
   return (
     <button
       type="button"
       onClick={() => onSelect(syl.id)}
       title={syl.rom}
-      className={`flex flex-col items-center justify-center border-b border-gray-100 py-1 hover:bg-blue-50 dark:border-gray-800 dark:hover:bg-gray-800 ${tone ?? ""}`}
+      className={`flex flex-col items-center justify-center border-b border-gray-100 py-1 hover:bg-blue-50 dark:border-gray-800 dark:hover:bg-gray-800 ${
+        selected ? SELECTED_INSET : (tone ?? "")
+      }`}
     >
       <Glyph
         text={syl.glyph}
@@ -876,16 +947,22 @@ function SyllableCell({
 function ConsonantCell({
   c,
   onSelect,
+  selected,
 }: {
   c: Consonant;
   onSelect: (id: string) => void;
+  selected?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={() => onSelect(c.id)}
       title={`${c.rom} の詳細`}
-      className="relative flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-lg border border-gray-200 bg-white transition-colors hover:border-blue-400 hover:bg-blue-50 sm:h-16 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+      className={`relative flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-lg border transition-colors hover:border-blue-400 hover:bg-blue-50 sm:h-16 dark:hover:bg-gray-700 ${
+        selected
+          ? "border-blue-400 bg-blue-50 ring-1 ring-blue-400/60 dark:border-blue-500 dark:bg-blue-950/40"
+          : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      }`}
     >
       <Glyph
         text={c.glyph}
@@ -907,18 +984,23 @@ function MatrixCell({
   c,
   sign,
   onSelect,
+  selectedId,
 }: {
   c: Consonant;
   sign: VowelSlot["shortSign"];
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   const syl = composeSyllable(c, sign);
+  const selected = syl.id === selectedId;
   return (
     <button
       type="button"
       onClick={() => onSelect(syl.id)}
       title={`${syl.rom} の詳細`}
-      className="flex h-full flex-col items-center justify-center gap-0.5 rounded-md px-1.5 py-1 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+      className={`flex h-full flex-col items-center justify-center gap-0.5 rounded-md px-1.5 py-1 transition-colors hover:bg-blue-50 dark:hover:bg-gray-700 ${
+        selected ? SELECTED_INSET : ""
+      }`}
     >
       <Glyph
         text={syl.glyph}
@@ -934,9 +1016,11 @@ function MatrixCell({
 function HodiyaList({
   misra,
   onSelect,
+  selectedId,
 }: {
   misra: boolean;
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   const vowels = hodiyaVowels({ misra });
   const cons = hodiyaConsonants({ misra });
@@ -954,6 +1038,7 @@ function HodiyaList({
               char={v}
               misra={v.misra}
               onSelect={onSelect}
+              selected={v.id === selectedId}
             />
           ))}
         </div>
@@ -964,7 +1049,12 @@ function HodiyaList({
         </h2>
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
           {cons.map((c) => (
-            <ConsonantCell key={c.id} c={c} onSelect={onSelect} />
+            <ConsonantCell
+              key={c.id}
+              c={c}
+              onSelect={onSelect}
+              selected={c.id === selectedId}
+            />
           ))}
         </div>
       </section>
@@ -984,9 +1074,11 @@ function HodiyaList({
 function ConsonantMatrixTable({
   sign,
   onSelect,
+  selectedId,
 }: {
   sign: VowelSlot["shortSign"];
   onSelect: (id: string) => void;
+  selectedId?: string | null;
 }) {
   // the matrix always shows every letter (pure + borrowed); its purpose is the
   // complete articulation system. Borrowed letters keep a subtle miśra dot.
@@ -1024,7 +1116,12 @@ function ConsonantMatrixTable({
                     key={c.id}
                     className="flex items-center justify-center border-b border-gray-100 p-1 dark:border-gray-800"
                   >
-                    <MatrixCell c={c} sign={sign} onSelect={onSelect} />
+                    <MatrixCell
+                      c={c}
+                      sign={sign}
+                      onSelect={onSelect}
+                      selectedId={selectedId}
+                    />
                   </div>
                 ) : (
                   <div
@@ -1076,6 +1173,7 @@ function ConsonantMatrixTable({
                           c={c}
                           sign={sign}
                           onSelect={onSelect}
+                          selectedId={selectedId}
                         />
                       ))}
                     </div>
