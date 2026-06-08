@@ -180,18 +180,21 @@ export default function TablePage() {
   const selectedId = params.get("char");
   const selected = selectedId ? getCharById(selectedId) : undefined;
 
+  // All toolbar toggles below live in a sticky top bar while the table scrolls
+  // underneath, so they pass preventScrollReset to keep the table's scroll
+  // position instead of jumping to the top on every toggle.
   const setMode = (m: Mode) => {
     const next = new URLSearchParams(params);
     next.set("mode", m);
     next.delete("char");
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
   const setParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
     if (value === null) next.delete(key);
     else next.set(key, value);
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
   // pick a consonant glyph-family group (signs mode); resets the chosen
@@ -200,7 +203,7 @@ export default function TablePage() {
     const next = new URLSearchParams(params);
     next.set("cgroup", baseRom);
     next.delete("cons");
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
   // toggle one chart band on/off independently; persists as ?band=seion,dakuon.
@@ -224,19 +227,22 @@ export default function TablePage() {
       .join(",");
     if (value === "seion" || value === "") next.delete("band");
     else next.set("band", value);
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
+  // Opening / closing the detail modal only toggles ?char=. It is an overlay on
+  // top of the table, so keep the table's scroll position (preventScrollReset)
+  // instead of letting the navigation jump back to the top.
   const select = (id: string) => {
     const next = new URLSearchParams(params);
     next.set("char", id);
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
   const close = () => {
     const next = new URLSearchParams(params);
     next.delete("char");
-    setParams(next);
+    setParams(next, { preventScrollReset: true });
   };
 
   return (

@@ -79,7 +79,9 @@ function CoursePage({ course }: { course: LessonCourse }) {
     const target = Math.min(Math.max(0, index), chars.length - 1);
     const next = new URLSearchParams(params);
     next.set("i", String(target));
-    setParams(next);
+    // Flipping through characters only swaps the card in place; keep the scroll
+    // position instead of jumping back to the top on each step.
+    setParams(next, { preventScrollReset: true });
   };
   const go = (delta: number) => goTo(i + delta);
 
