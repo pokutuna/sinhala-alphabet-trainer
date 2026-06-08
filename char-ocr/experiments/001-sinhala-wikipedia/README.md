@@ -28,6 +28,23 @@ uv run --with regex --with uharfbuzz --with freetype-py --with pillow --with num
 
 - `akshara_freq_wikipedia.csv` — akshara, codepoints, freq(Wikipedia 出現回数)
 - `akshara_table_full.csv` — 全 akshara テーブル(下記の列)
+- `audit_romanization.py` / `romanization_audit.csv` — 翻字(rom)の規格監査(下記「翻字の規格監査」)
+
+## 翻字の規格監査(reading の裏取りと規格統一)
+
+`akshara_freq_wikipedia.csv` を使い、`app/data/sinhala.json` の部品 rom で「字 → 読み」を規則合成
+(`app/lib/transliterate.ts` の `sinhalaToReading` と同じロジック)したときの**読み欠落**を実データで洗い出した。
+
+- 当初、頻出する母音記号・複合字が辞書に無く読みが壊れていた(欠落 101,677 トークン / 0.32%)。
+  実データで度数順に特定し、母音記号 **ෘ(ṛ) ෲ(ṝ) ෛ(ai) ෟ(ḷ) ෳ(ḹ)**・独立母音 **ඎ(ṝ) ඏ(ḷ) ඐ(ḹ)**・
+  複合字 **ඥ(jña)** を `sinhala.json` に補完 → 文字単位の読み欠落は実質ゼロ(残りは句読点 ෴ や ZWJ 断片)。
+- 翻字の**規格**は IAST/ALA-LC に統一。`audit_romanization.py` が ISO 15919 と IAST/ALA-LC の対照で現 rom を監査し、
+  `romanization_audit.csv` に出力する。規格選択の根拠・vocalic l と子音 ළ の衝突対応は
+  [docs/sinhala-script.md §7-1a](../../../docs/sinhala-script.md)。
+
+```bash
+uv run audit_romanization.py   # → romanization_audit.csv
+```
 
 ## akshara_table_full.csv の列
 

@@ -1,0 +1,11 @@
+category,glyph,codepoint,current_rom,iso15919,iast_alalc,follows,differs,wiki_freq
+consonant,ණ,U+0DAB,ṇa,ṇa,ṇa,both/neutral,no(同一),464952
+consonant,ළ,U+0DC5,ḷa,ḷa,ḷa,both/neutral,no(同一),329740
+vowel_sign,ෘ,U+0DD8,ṛ,r̥,ṛ,IAST/ALA-LC,yes,59125
+independent_vowel,ඍ,U+0D8D,ṛ,r̥,ṛ,IAST/ALA-LC,yes,1856
+vowel_sign,ෲ,U+0DF2,ṝ,r̥̄,ṝ,IAST/ALA-LC,yes,1649
+vowel_sign,ෟ,U+0DDF,ḷ,l̥,ḷ,IAST/ALA-LC,yes,328
+vowel_sign,ෳ,U+0DF3,ḹ,l̥̄,ḹ,IAST/ALA-LC,yes,44
+independent_vowel,ඎ,U+0D8E,ṝ,r̥̄,ṝ,IAST/ALA-LC,yes,38
+independent_vowel,ඏ,U+0D8F,ḷ,l̥,ḷ,IAST/ALA-LC,yes,27
+independent_vowel,ඐ,U+0D90,ḹ,l̥̄,ḹ,IAST/ALA-LC,yes,21

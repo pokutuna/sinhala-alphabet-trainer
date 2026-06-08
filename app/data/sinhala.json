@@ -117,6 +117,53 @@
       "name": "kombuva + gayanukitta",
       "position": "both",
       "misra": true
+    },
+    {
+      "rom": "ṛ",
+      "ipa": "ɾu",
+      "kana": "リ",
+      "sign": "ෘ",
+      "name": "gaetta pilla",
+      "position": "bottom",
+      "misra": true
+    },
+    {
+      "rom": "ṝ",
+      "ipa": "ɾuː",
+      "kana": "リー",
+      "sign": "ෲ",
+      "name": "dīrgha gaetta pilla",
+      "position": "bottom",
+      "misra": true
+    },
+    {
+      "rom": "ai",
+      "ipa": "ai",
+      "kana": "アイ",
+      "sign": "ෛ",
+      "name": "kombu deka",
+      "position": "left",
+      "misra": true
+    },
+    {
+      "rom": "ḷ",
+      "ipa": "lu",
+      "kana": "ル",
+      "sign": "ෟ",
+      "name": "gayanukitta",
+      "position": "bottom",
+      "misra": true,
+      "note": "母音記号の vocalic l。子音 ළ(ḷa)と rom が衝突するが、ළ は右に母音記号/下に hal で文脈区別される"
+    },
+    {
+      "rom": "ḹ",
+      "ipa": "luː",
+      "kana": "ルー",
+      "sign": "ෳ",
+      "name": "dīrgha gayanukitta",
+      "position": "bottom",
+      "misra": true,
+      "note": "母音記号の長い vocalic l。IAST/ALA-LC 表記"
     }
   ],
   "hal": {
@@ -255,6 +302,36 @@
       "kana": "り",
       "len": "short",
       "pair": "ṝ",
+      "misra": true,
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඎ",
+      "rom": "ṝ",
+      "ipa": "ɾuː",
+      "kana": "りー",
+      "len": "long",
+      "pair": "ṛ",
+      "misra": true,
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඏ",
+      "rom": "ḷ",
+      "ipa": "ɭu",
+      "kana": "る",
+      "len": "short",
+      "pair": "ḹ",
+      "misra": true,
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඐ",
+      "rom": "ḹ",
+      "ipa": "ɭuː",
+      "kana": "るー",
+      "len": "long",
+      "pair": "ḷ",
       "misra": true,
       "mnemonic": ""
     },
@@ -410,6 +487,17 @@
       "manner": "prenasalized",
       "misra": true,
       "note": "まれ",
+      "mnemonic": ""
+    },
+    {
+      "glyph": "ඥ",
+      "rom": "jña",
+      "ipa": "ɡn",
+      "kana": "ぎゃ",
+      "place": "palatal",
+      "manner": "nasal",
+      "misra": true,
+      "note": "j+ña の複合字 (sanyoga naksikya)。借用語で /gn/ に近い",
       "mnemonic": ""
     },
     {

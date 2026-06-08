@@ -317,6 +317,37 @@ hal止めは母音を付けない。
 [char-ocr/scripts/_akshara.py](../char-ocr/scripts/_akshara.py)、
 翻字辞書は [transliteration.md](./transliteration.md)。
 
+### 7-1a. 翻字の規格(IAST/ALA-LC 準拠)と vocalic l の衝突
+
+本アプリのローマ字翻字(`app/data/sinhala.json` の `rom`)は **IAST / ALA-LC 系**に統一する。
+シンハラ語の翻字規格は主に 4 つあり、特異母音(vocalic r/l)と anusvara で差が出る:
+
+| 文字 | ISO 15919 | **IAST / ALA-LC(本アプリ)** | 備考 |
+| --- | --- | --- | --- |
+| vocalic r 短/長 ඍ ඎ(記号 ෘ ෲ) | r̥ / r̥̄(環記号) | **ṛ / ṝ**(下点) | |
+| vocalic l 短/長 ඏ ඐ(記号 ෟ ෳ) | l̥ / l̥̄(環記号) | **ḷ / ḹ**(下点) | ★下記の衝突 |
+| anusvara ං | ṁ(上点) | **ṃ**(下点) | |
+| retroflex 子音 ළ / ණ | ḷa / ṇa | ḷa / ṇa | 両規格同一 |
+
+**なぜ IAST/ALA-LC か**:(1) 実利用度数が圧倒的に IAST 側(vocalic r 記号 ෘ=`ṛ` は Wikipedia 3172万トークン中
+**59,125 度数**、`කෘ`=kṛ 等の Sanskrit 借用語の頻出骨格)。(2) ISO 15919 は国連専門家も「実地使用例の証拠なし」
+と評し、シンハラで実用されるのは ALA-LC(2011)= IAST 同系。(3) 学習者が辞書・教材で出会う表記も IAST 系。
+(4) 環記号 `l̥̄` は 3 コードポイントで表示・入力・検索が脆い。
+
+**衝突と対応(vocalic l)**: IAST では **母音記号 vocalic l `ḷ`(ෟ)が 子音 ළ の base `ḷa` と衝突**する
+(`කෟ` の rom=`kḷ` と `කළ්` の rom=`kḷ` が同形)。ISO 15919 なら vocalic l=`l̥`(環)で衝突しないが、
+上記理由で IAST を採る。許容できる根拠:
+
+- vocalic l はほぼ廃用の超レア字(Wikipedia 実測で ෟ+ෳ 合計 **372 度数**。vocalic r 系の 1/159)。
+- 衝突しても **配置で区別できる**: vocalic l は base の**右下に母音記号**、子音 ළ は**下に hal(ළ්)or 右に別の母音記号**。
+  人間にも OCR の①視覚ヘッド(別グリフ)にも識別可能で、reading 表記だけが同形になる。
+- `sinhala.json` の母音記号 ෟ/ෳ エントリに `note` でこの衝突を明記済み。
+
+検証スクリプトと監査結果は
+[char-ocr/experiments/001-sinhala-wikipedia/](../char-ocr/experiments/001-sinhala-wikipedia/)
+(`audit_romanization.py` / `romanization_audit.csv`)。Wikipedia 実データで「字→読み」の欠落を洗い出し、
+不足していた母音記号(ෘ ෲ ෛ ෟ ෳ)・独立母音(ඎ ඏ ඐ)・複合字(ඥ jña)を補完して欠落を解消した経緯もここに残す。
+
 ### 7-2. 配置の記述法(OpenType 並べ替えタグ)
 
 shaper(HarfBuzz Indic / Win Uniscribe)は入力コードポイント順でなく、**視覚順に並べ替えて**
