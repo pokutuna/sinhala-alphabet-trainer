@@ -1,0 +1,5 @@
+# コーパス生データ(ダウンロード実体)は追跡しない。再取得は download.sh で。
+/data/*
+# Python
+__pycache__/
+*.py[cod]
