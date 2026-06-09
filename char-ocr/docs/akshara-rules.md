@@ -5,6 +5,11 @@
 <https://learn.microsoft.com/en-us/typography/script-development/sinhala> + Unicode。
 関連: クラス数の階層は [datasets.md](./datasets.md) / [model-design.md](./model-design.md)。
 
+> **本書は入門・直感版。** 下記の式は「読んで理解する」ための簡略形で、ZWJ の任意性・hal 前後の
+> joiner・split matra・reph を畳んでいるため、**そのままでは実テキストの一部しか生成できない**
+> (実測で v1 は 12% しか網羅しなかった)。網羅的な形式文法・実データでの網羅性検証・HarfBuzz
+> 音節機械との対応は [akshara-grammar.md](./akshara-grammar.md)(厳密版・実証版)を参照。
+
 ## 大前提: クラスタは 2 種類だけ
 
 1 つの akshara は次のどちらかの文法でしか作れない。
@@ -24,7 +29,7 @@
 | `DV` | 母音記号(matra) | ි ා ේ | U+0DCF–0DDF 等 |
 | `VM` | 母音修飾(anusvara ං / visarga ඃ) | ං | U+0D82, U+0D83 |
 | `ZWJ` | 結合子(不可視) | | U+200D |
-| `{ }` | 0 回以上の繰り返し(上限 8) | | |
+| `{ }` | 0 回以上の繰り返し(文法上の上限なし。視覚的な積み stack は実質 2 が上限) | | |
 | `[ ]` | 省略可能 | | |
 | `<x\|y>` | x か y のどちらか | | |
 
@@ -82,8 +87,11 @@
 
 ## 「理論 ≫ 実際」がこの文法から説明できる
 
-- 文法上は前置 `{C+H+ZWJ}` を上限 8 回まで積めるので組み合わせは天文学的(理論)。
-- だが実コーパス(SinOCR)では前置は **0 回(単独子音)か 1 回(2 連結)がほぼ全部**、2 回以上は外来語音写の極少数。
+- 文法上は前置 `{C+H+ZWJ}` を**回数無制限**に積めるので組み合わせは天文学的(理論)。HarfBuzz にも上限は無い。
+- だが**視覚的に積み重なる(stack)のは実質 2 連が上限**。rakar/yansa/repaya は base 1 個に 1 個しか乗らない。
+- 実コーパス(Wikipedia)では前置は **0 回(単独子音, token 98.4%)か 1 回(2 連結, 1.6%)がほぼ全部**。
+  ハル連結(hal_chain)で見ても日常語は最大 3 連、4 連は Armstrong/express 等の外来語音写、5 連以上は Web ノイズ。
+  → 2 指標(stack / hal_chain)の実測分布は [akshara-grammar.md §4-2](./akshara-grammar.md)。
 - だから実際の akshara は **620 種・頻出 ~200 種**に収まる(→ [datasets.md](./datasets.md))。
 - 文法は無限を許すが、実用は前置回数を 0〜1 に絞るので有限。これが「理論的組み合わせ数 ≫ 実際に登場する数」の構造的理由。
 

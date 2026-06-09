@@ -22,6 +22,10 @@ uv run --with regex --with uharfbuzz --with freetype-py --with pillow --with num
 
 # 3. 全 akshara テーブル生成 → akshara_table_full.csv
 uv run --with regex --with uharfbuzz --with freetype-py --with pillow --with numpy --with pandas gen_akshara_table_full.py
+
+# 4. 形式的文法の網羅性検証(文法分類 × Noto 実シェーピングの 2x2)
+#    スクリプト冒頭の curl で Noto を取得してから実行。結果は ../../docs/akshara-grammar.md
+uv run verify_grammar_coverage.py
 ```
 
 ## 成果物(コミット対象)
@@ -29,6 +33,7 @@ uv run --with regex --with uharfbuzz --with freetype-py --with pillow --with num
 - `akshara_freq_wikipedia.csv` — akshara, codepoints, freq(Wikipedia 出現回数)
 - `akshara_table_full.csv` — 全 akshara テーブル(下記の列)
 - `audit_romanization.py` / `romanization_audit.csv` — 翻字(rom)の規格監査(下記「翻字の規格監査」)
+- `verify_grammar_coverage.py` — 形式的文法の網羅性検証(→ [../../docs/akshara-grammar.md](../../docs/akshara-grammar.md))
 
 ## 翻字の規格監査(reading の裏取りと規格統一)
 
@@ -68,8 +73,19 @@ uv run audit_romanization.py   # → romanization_audit.csv
 - 全 akshara(規則生成): **5471**(全て renderable)
 - wiki_freq>0(実在): **1951** / wiki_freq>=5: **1372** / in_454: **437**
 - ①視覚クラス(renderable・実在): **1950** / ②main_glyph: **59** / ③mod_parts: **22**
-- 視覚統合が起きるのは 1 組だけ(`ර්ර`≡`ර්‍ර`)= Sinhala は NFC 正規化後ほぼ視覚単位。
-- **ZWJ 結合と横並び結合は視覚的に別物**(`ක්‍ර`=kasinh+karasinh 下付き合字 / `ක්ර`=kahalantsinh+rasinh ハル+横並び)。統合されないのが正しい。
+- 視覚統合が起きるのは 1 組だけ(`ර්ර`≡`ර්‍ర`)= Sinhala は NFC 正規化後ほぼ視覚単位。
+- **ZWJ 結合と横並び結合は視覚的に別物**(`ක්‍ర`=kasinh+karasinh 下付き合字 / `ක්ර`=kahalantsinh+rasinh ハル+横並び)。統合されないのが正しい。
+
+### akshara_freq_wikipedia.csv を直接数えた「文字数」(数え方の注意)
+
+`akshara_freq_wikipedia.csv` は `split_aksharas`(hal 止め連結も 1 塊)で切った **18,354 distinct**。
+だがこれは外来語の長い連結を 1 巨大塊にした**膨張値**で、「文字数」としては過大。
+
+- **視覚単位(Unicode `\X`)で数え直すと distinct = 3,052**(1/6 に減る)。頻度≥10 で 1,083、上位 454 種で token 99.8%。
+- 「文字数」は何を 1 文字と数えるかで 5 段階(部品 ~80 → 論理上限 ≈108,500 → 実在 3,052 → 実用 ~450)。
+  実数・カバレッジは [../../docs/akshara-grammar.md §4-3](../../docs/akshara-grammar.md)。
+- **連数(N 連)は 2 指標**: stack(視覚的な積み、最大 2)/ hal_chain(ハル連結、外来語で最大 4)。
+  混同すると Armstrong を「4 連」と誤集計する。計測は `scripts/_akshara.py` の `count_conjuncts`、詳細は同 §4-2。
 
 ## メモ
 
