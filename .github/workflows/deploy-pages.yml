@@ -18,7 +18,7 @@ jobs:
     # Use ubuntu-latest if build takes over 15 minutes
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
