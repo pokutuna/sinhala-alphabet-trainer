@@ -18,6 +18,9 @@ export default defineConfig(() => {
       tailwindcss(),
       reactRouter(),
       VitePWA({
+        // React Router (SPA mode) は build/client に出力するが、vite-plugin-pwa の
+        // デフォルトは dist なので明示的に合わせる。
+        outDir: "build/client",
         // GitHub Pages のサブパス配下でも manifest / SW / start_url が正しく解決されるよう、
         // vite の base と同じ値を渡す。
         base,

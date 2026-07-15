@@ -937,7 +937,7 @@ function yoonCandidates(
  */
 function applyLongMark(segments: Segment[], mark: string): boolean {
   const last = segments[segments.length - 1];
-  if (!last || last.kind !== "mapped") return false;
+  if (last?.kind !== "mapped") return false;
   const lengthened = last.candidates
     .map((c) => lengthenCandidate(c))
     .filter((c): c is Candidate => c !== null);
@@ -962,7 +962,7 @@ function applyVowelLengthening(
   kana: string,
 ): boolean {
   const last = segments[segments.length - 1];
-  if (!last || last.kind !== "mapped") return false;
+  if (last?.kind !== "mapped") return false;
   const tail = vowelCandidate(vk, kana); // the bare-vowel reading we'd otherwise emit
   const merged: Candidate[] = [];
   for (const c of last.candidates) {
